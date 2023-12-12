@@ -1,0 +1,23 @@
+# Build output #
+###############
+/dist
+/build
+
+# IDE/Editor files #
+####################
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Misc #
+########
+.env
+.secret
+
+
+# dotenv environment variables file #
+######################################
+.env
+.env.test
