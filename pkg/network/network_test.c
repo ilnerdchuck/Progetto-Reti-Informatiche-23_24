@@ -13,15 +13,15 @@ void *server_thread_func(void *arg) {
 
 // PING PONG behaviour
 // -----------------------------------------
-void accept_function(size_t sd) {}
-void input_function(size_t sd, char *inputText) {}
-int response_function(size_t sd, const char *msg, char **rsp) {
+void accept_function(int sd) {}
+void input_function(int sd, char *inputText) {}
+int response_function(int sd, const char *msg, char **rsp) {
     char *s = "pang";
     if (strcmp(msg, "ping") == 0) {
         s = "pong";
     }
 
-    size_t len = strlen(s);
+    uint32_t len = strlen(s);
     *rsp = malloc(len + 1);
     if (*rsp == NULL) {
         return -1;
@@ -34,7 +34,7 @@ int response_function(size_t sd, const char *msg, char **rsp) {
 int TestPingPong() {
     server *s = new_server(accept_function, input_function, response_function);
 
-    size_t port = 1010;
+    uint32_t port = 1010;
     int attempts = 0;
     while (bind_server(s, port) != -1) {
         port++;
@@ -44,13 +44,15 @@ int TestPingPong() {
 
     pthread_t server_thread;
     int res = pthread_create(&server_thread, NULL, server_thread_func, s);
-    ASSERT(res != 0);
+    ASSERT(res == 0);
 
-    usleep(500 * 1000);  // Wait for 500 ms
+    usleep(1000 * 1000);
 
     client *c = new_client("127.0.0.1", port);
 
-    char *rsp;
+    char *rsp = NULL;
+    printf("miao");
+
     res = request(c, "ping", &rsp);
     ASSERT(res != -1)
     ASSERT(strcmp("pong", rsp) == 0);

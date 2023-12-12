@@ -8,7 +8,7 @@
 #define MAX_MESSAGE_SIZE 4096
 #define CHUNK_SIZE 1024
 
-int _send(size_t sd, const char* msg) {
+int _send(int sd, const char* msg) {
     // check if the message can be sent
     uint32_t len = strlen(msg) + 1;
     if (len > MAX_MESSAGE_SIZE) {
@@ -37,4 +37,6 @@ int _send(size_t sd, const char* msg) {
     }
 }
 
-int _receive(size_t sd, char** rsp) { return 0; }
+int _receive(int sd, char** rsp) {
+    // TODO: implement
+}

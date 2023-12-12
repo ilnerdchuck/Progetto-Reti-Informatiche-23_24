@@ -1,10 +1,22 @@
+#include <arpa/inet.h>
+#include <errno.h>
+#include <malloc.h>
+#include <netinet/in.h>
+#include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
 
 #include "network.h"
 
 client *new_client(const char *server_ip, const size_t server_port) {
-    struct client *c = malloc(sizeof(struct client));
+    client *c = malloc(sizeof(client));
 
     if (c == NULL) {
         goto error;
@@ -37,16 +49,60 @@ void delete_client(client *c) {
     return;
 }
 
-int connect(client *c) { return 0; }
+int client_connect(client *c) {
+    if (c->connected) return 0;
 
-int request(client *c, const char *msg, char **rsp) {
-    int err = connect(c);
+    c->sd = socket(AF_INET, SOCK_STREAM, 0);
+
+    if (c->sd == -1) {
+        return -1;
+    }
+
+    // timeout of 100ms
+    struct timeval recive_timeout = {.tv_sec = 0, .tv_usec = 100 * 1000};
+
+    int err = setsockopt(c->sd, SOL_SOCKET, SO_RCVTIMEO, &recive_timeout,
+                         sizeof(struct timeval));
+
     if (err == -1) {
         return -1;
     }
 
+    struct sockaddr_in server_address = {0};
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = inet_addr(c->server_ip);
+    server_address.sin_port = htons(c->server_port);
+
+    err = connect(c->sd, (struct sockaddr *)&server_address,
+                  sizeof(server_address));
+
+    if (err == 0) {
+        c->connected = 1;
+        return 0;
+    }
+
+    return -1;
+}
+
+int request(client *c, const char *msg, char **rsp) {
+    printf("lolz");
+
+    int err = client_connect(c);
+    printf("kek");
+    if (err == -1) {
+        printf("lolz");
+        c->connected = 0;
+        close(c->sd);
+        return -1;
+    }
+
+    printf("miao");
+
     err = _send(c->sd, msg);
     if (err == -1) {
+        printf("bau");
+        c->connected = 0;
+        close(c->sd);
         return -1;
     }
 
