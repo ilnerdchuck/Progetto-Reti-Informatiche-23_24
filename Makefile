@@ -1,6 +1,6 @@
 # Define your compiler and flags
 CC := gcc
-CFLAGS := -g -O0 -Wall -std11
+CFLAGS := -g -O0 -Wall -std=11
 CFLAGS_DEP = -MD
 CFLAGS_TOT = $(CFLAGS_DEP) $(CFLAGS)
 
