@@ -1,6 +1,6 @@
 # Define your compiler and flags
 CC := gcc
-CFLAGS := -g
+CFLAGS := -g -O0 -Wall -std11
 CFLAGS_DEP = -MD
 CFLAGS_TOT = $(CFLAGS_DEP) $(CFLAGS)
 
@@ -36,7 +36,7 @@ test: $(BUILD_DIR)/test
 
 # Rule to generate test.c and compile it into an object file
 $(BUILD_DIR)/test: $(TEST_SRC) $(BUILD_DIR)/libpkg.a
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -Wall -o $@ $^
 
 # Rule to run test.sh and generate test.c
 # @FIXME this will trigger a re-compilation each time

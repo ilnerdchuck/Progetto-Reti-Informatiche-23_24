@@ -1,6 +1,7 @@
 #include "network.h"
 
 #include <pthread.h>
+#include <stdio.h>
 #include <unistd.h>
 
 #include "./../test.h"
@@ -21,8 +22,8 @@ int response_function(int sd, const char *msg, char **rsp) {
         s = "pong";
     }
 
-    uint32_t len = strlen(s);
-    *rsp = malloc(len + 1);
+    uint32_t len = strlen(s) + 1;
+    *rsp = malloc(len);
     if (*rsp == NULL) {
         return -1;
     }
@@ -34,9 +35,9 @@ int response_function(int sd, const char *msg, char **rsp) {
 int TestPingPong() {
     server *s = new_server(accept_function, input_function, response_function);
 
-    uint32_t port = 1010;
+    uint32_t port = 2500;
     int attempts = 0;
-    while (bind_server(s, port) != -1) {
+    while (bind_server(s, port) == -1) {
         port++;
         attempts++;
         ASSERT(attempts < 100);
@@ -51,9 +52,9 @@ int TestPingPong() {
     client *c = new_client("127.0.0.1", port);
 
     char *rsp = NULL;
-    printf("miao");
 
     res = request(c, "ping", &rsp);
+    printf("rsp: %s\n",rsp);
     ASSERT(res != -1)
     ASSERT(strcmp("pong", rsp) == 0);
     free(rsp);
@@ -61,6 +62,7 @@ int TestPingPong() {
 
     res = request(c, "boh", &rsp);
     ASSERT(res != -1)
+    //questo controllo sotto crea errore
     ASSERT(strcmp("pang", rsp) == 0);
     free(rsp);
     rsp = NULL;

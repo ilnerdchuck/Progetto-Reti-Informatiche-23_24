@@ -1,8 +1,6 @@
 #include <arpa/inet.h>
-#include <errno.h>
 #include <malloc.h>
 #include <netinet/in.h>
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
@@ -38,7 +36,7 @@ error:
 int bind_server(server* s, int port) {
     struct sockaddr_in address = {0};
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_addr.s_addr = htonl(INADDR_ANY);
     address.sin_port = htons(port);
 
     return bind(s->listener, (struct sockaddr*)&address, sizeof(address));
@@ -54,7 +52,7 @@ int listen_server(server* s) {
     FD_ZERO(&master);
     FD_ZERO(&read_fds);
 
-    FD_SET(STDIN_FILENO, &master);
+    // FD_SET(STDIN_FILENO, &master);
     FD_SET(s->listener, &master);
 
     int fdmax = s->listener;
@@ -68,19 +66,20 @@ int listen_server(server* s) {
             if (!FD_ISSET(fd, &read_fds)) continue;
 
             // TODO: add input callback and fd
-            if (fd == STDIN_FILENO) {
+            // if (fd == STDIN_FILENO) {
                 // TODO:
                 // - receive the message from stdin
                 // - s->i(sd, msg)
-                continue;
-            }
+                // continue;
+            // }
             // add a connection in case the full sd is the listener
             if (fd == s->listener) {
                 struct sockaddr_in cl_addr;
                 uint32_t addrlen = sizeof(cl_addr);
 
-                int newsd = accept(s->listener, (struct sockaddr*)&cl_addr,
-                                   (socklen_t*)&addrlen);
+                int newsd = accept(s->listener, 
+                                 (struct sockaddr*)&cl_addr,
+                             (socklen_t*)&addrlen);
 
                 FD_SET(newsd, &master);
                 if (newsd > fdmax) {
@@ -91,7 +90,7 @@ int listen_server(server* s) {
                 continue;
             }
 
-            // in case of a message call the proto receive
+            // in case of a message call the receive
             char* msg;
             int err = _receive(fd, &msg);
 

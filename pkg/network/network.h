@@ -4,14 +4,14 @@
 #include <stdint.h>
 #include <stdio.h>
 
-struct client {
+typedef struct {
     char* server_ip;
     size_t server_port;
     size_t client_port;
     int sd;
     int connected;
 
-} typedef client;
+} client;
 
 client* new_client(const char* server_ip, const size_t server_port);
 int request(client* c, const char* msg, char** rsp);

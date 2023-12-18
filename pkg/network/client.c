@@ -1,8 +1,6 @@
 #include <arpa/inet.h>
-#include <errno.h>
 #include <malloc.h>
 #include <netinet/in.h>
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -61,7 +59,10 @@ int client_connect(client *c) {
     // timeout of 100ms
     struct timeval recive_timeout = {.tv_sec = 0, .tv_usec = 100 * 1000};
 
-    int err = setsockopt(c->sd, SOL_SOCKET, SO_RCVTIMEO, &recive_timeout,
+    int err = setsockopt(c->sd, 
+                         SOL_SOCKET, 
+                         SO_RCVTIMEO, 
+                         &recive_timeout,
                          sizeof(struct timeval));
 
     if (err == -1) {
@@ -85,22 +86,17 @@ int client_connect(client *c) {
 }
 
 int request(client *c, const char *msg, char **rsp) {
-    printf("lolz");
 
     int err = client_connect(c);
-    printf("kek");
     if (err == -1) {
-        printf("lolz");
         c->connected = 0;
         close(c->sd);
         return -1;
     }
 
-    printf("miao");
 
     err = _send(c->sd, msg);
     if (err == -1) {
-        printf("bau");
         c->connected = 0;
         close(c->sd);
         return -1;
