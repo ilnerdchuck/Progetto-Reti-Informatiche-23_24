@@ -5,11 +5,9 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "network.h"
-
-#define MAX_MESSAGE_SIZE 4096
-#define CHUNK_SIZE 1024
 
 int _send(int sd, const char* msg) {
     // check if the message can be sent
@@ -96,3 +94,37 @@ int _receive(int sd, char** rsp) {
 
     return 0;
 }
+
+//@TODO message serialize function
+char* msg_serialize(const msg* message){
+  char* tmp_buff = NULL;
+  sprintf(tmp_buff, "%d %d %s",message->msgtype,message->cmdtype,message->field); 
+  return tmp_buff;
+}
+
+//@TODO message deserialize function
+msg msg_deserialize(char* buff){
+  msg tmp_msg = {0};
+  char* tmp_buff = NULL;
+  sscanf(buff, "%d %d %s",(int*)&tmp_msg.msgtype,(int*)&tmp_msg.cmdtype,tmp_buff);
+  strcpy(tmp_msg.field, tmp_buff);
+
+  return tmp_msg;
+}
+
+int read_stin_line(char *buff){  
+  
+  if(fgets(buff, MAX_MESSAGE_SIZE, STDIN_FILENO) != NULL){ 
+    return strlen(buff)+1;
+  }
+
+  return -1;
+}
+
+
+
+char* readFileLine(){
+  return NULL;
+}
+
+

@@ -3,6 +3,7 @@
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -40,7 +41,7 @@ int bind_server(server* s, int port) {
     address.sin_port = htons(port);
 
     return bind(s->listener, (struct sockaddr*)&address, sizeof(address));
-}
+} 
 
 int listen_server(server* s) {
     fd_set master, read_fds;
@@ -66,12 +67,12 @@ int listen_server(server* s) {
             if (!FD_ISSET(fd, &read_fds)) continue;
 
             // TODO: add input callback and fd
-            // if (fd == STDIN_FILENO) {
+            if (fd == STDIN_FILENO) {
                 // TODO:
-                // - receive the message from stdin
-                // - s->i(sd, msg)
-                // continue;
-            // }
+                // receive the message from stdin
+                //s->i(sd, msg);
+                continue;
+            }
             // add a connection in case the full sd is the listener
             if (fd == s->listener) {
                 struct sockaddr_in cl_addr;
@@ -91,8 +92,8 @@ int listen_server(server* s) {
             }
 
             // in case of a message call the receive
-            char* msg;
-            int err = _receive(fd, &msg);
+            char* msgg;
+            int err = _receive(fd, &msgg);
 
             // in case of an error close the socket
             if (err == -1) {
@@ -104,7 +105,7 @@ int listen_server(server* s) {
 
             // call the message callback
             char* rsp = NULL;
-            err = s->r(fd, msg, &rsp);
+            err = s->r(fd, msgg, &rsp);
             if (err == -1) {
                 FD_CLR(fd, &master);
                 close(fd);
@@ -113,13 +114,16 @@ int listen_server(server* s) {
             }
 
             // otherwise send the response
+            msg tmp = {0};
+
+            strcpy(tmp.field, rsp);
             err = _send(fd, rsp);
 
             free(rsp);
             rsp = NULL;
 
-            free(msg);
-            msg = NULL;
+            free(msgg);
+            msgg = NULL;
 
             if (err == -1) {
                 FD_CLR(fd, &master);
@@ -134,3 +138,73 @@ int listen_server(server* s) {
 void delete_server(server* s) {
     // TODO: delete
 }
+
+int find_credentials(char* usr, char* pwd){
+  FILE* crd_file;
+  char tmp_line[4096];
+  char* f_usr = NULL; 
+  char* f_pwd = NULL;
+
+  crd_file = fopen("credentials.txt", "r");
+  if(crd_file == NULL){
+    printf("Errore di apertura del file di credenziali\n");
+    return 0;
+  }
+  
+  while(fgets(tmp_line, sizeof(tmp_line), crd_file) != NULL){
+    sscanf(tmp_line, "%s %s", f_usr, f_pwd);
+    if(!strcmp(f_usr, usr)){
+      if(!strcmp(f_pwd, pwd)){
+        printf("Utente Registrato Evviva\n");
+        fclose(crd_file);
+        return 1;
+      }
+    }
+  }
+
+  printf("Utente non Registrato\n");
+  
+  fclose(crd_file);
+  return 0;
+};
+
+int login(char* usr, char* pwd){
+  if(!find_credentials(usr, pwd)){
+    printf("Utente Non Registrato\n");
+    return -1;
+  }
+  
+  printf("Utente Registrato\n");
+  return 0;
+};
+
+
+int resgister(char* usr, char* pwd){
+  //leggere da file e confrontare con utente e password
+  if (!find_credentials(usr, pwd)) {
+    printf("Utente giá registrato:\n");
+    return -1;
+  }
+  //scrivi l'untente nel file
+  FILE* crd_file;
+  
+  crd_file = fopen("credentials.txt", "a");
+  if (crd_file == NULL) {
+    printf("errore nell'apertura del file\n");
+    return -1;
+  }
+  
+  fprintf(crd_file, "%s %s", usr, pwd);
+  fclose(crd_file);
+
+  if(login(usr,pwd)){
+    printf("Errore durante la registrazione dell'utente\n");
+    return -1;
+  }
+  
+  printf("Utente registrato correttamente\n");
+  return 0;
+};
+
+
+
