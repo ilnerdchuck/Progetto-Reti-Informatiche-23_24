@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <malloc.h>
 #include "./../test.h"
 
 
@@ -73,6 +73,7 @@ int TestPingPong() {
     ASSERT(res != -1)
     ASSERT(strcmp("pang", rsp.field) == 0);
 
+    stop_server(s); 
     // join the server thread
     pthread_join(server_thread, NULL);
 

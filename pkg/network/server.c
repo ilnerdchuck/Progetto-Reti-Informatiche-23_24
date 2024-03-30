@@ -23,6 +23,7 @@ server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r) {
     s->a = a;
     s->i = i;
     s->r = r;
+    
 
     s->listener = socket(AF_INET, SOCK_STREAM, 0);
     if (s->listener == -1) {
@@ -50,6 +51,7 @@ int listen_server(server* s) {
 
     listen(s->listener, 10);
 
+    s->run = 1;
     FD_ZERO(&master);
     FD_ZERO(&read_fds);
 
@@ -58,7 +60,7 @@ int listen_server(server* s) {
 
     int fdmax = s->listener;
 
-    while (1) {
+    while (s->run) {
         read_fds = master;
 
         select(fdmax + 1, &read_fds, NULL, NULL, &timeout);
@@ -129,6 +131,12 @@ int listen_server(server* s) {
             }
         }
     }
+    return 0;
+}
+
+void stop_server(server* s){
+    s->run = 0;
+  
 }
 
 void delete_server(server* s) {

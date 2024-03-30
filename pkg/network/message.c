@@ -11,9 +11,10 @@
 #include "./../string/string.h"
 
 // msg_serialize serializes the message into the buff, returns err != 0 on error
-int msg_serialize(const message msg, char* buff){
-    buff = fmt_Sprintf("%d %d %s",msg.msgtype,msg.cmdtype,msg.field);
-    if (buff == NULL){
+int msg_serialize(const message msg, char** buff){
+  
+    *buff = fmt_Sprintf("%d %d %s",msg.msgtype,msg.cmdtype,msg.field);
+    if (*buff == NULL){
             return -1;
     }
     return 0;
@@ -25,7 +26,7 @@ int msg_deserialize(const char* buff, message *msg ){
     if (msg->field == NULL) {
         return -1;
     }
-    sscanf(buff, "%d %d %s",(int*)&msg->msgtype,(int*)&msg->cmdtype,&msg->field);
+    sscanf(buff, "%d %d %s",(int*)&msg->msgtype,(int*)&msg->cmdtype,msg->field);
     return 0;
 }
 
@@ -33,7 +34,7 @@ int msg_deserialize(const char* buff, message *msg ){
 // _send sends the msg into the sd, returns err != 0 on error
 int _send(int sd, const message msg) {
     char * payload = NULL; 
-    int err = msg_serialize(msg, payload);
+    int err = msg_serialize(msg, &payload);
     if (err != 0){
         return err;
     }
@@ -108,8 +109,6 @@ int _receive(int sd, message* msg) {
 
         bytes_recived += res;
         strncat(tmp_rsp, buffer, tmp_len);
-        printf("tmp_rsp: %s \n",tmp_rsp);
-        printf("buffer: %s \n",buffer);
     }
 
     char * rsp = malloc(msg_len);

@@ -50,15 +50,18 @@ typedef int (*ResponseFunction)(int sd, const message msg, message* rsp);
 //------SERVER-------//
 struct server {
     int listener;
+    int run; 
     AcceptFunction a;
     InputFunction i;
     ResponseFunction r;
+    
 } typedef server;
 
 server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r);
 int bind_server(server* s, int port);
 int listen_server(server* s);
 void delete_server(server* s);
+void stop_server(server*s);
 
 int _send(int sd, const message msg);
 int _receive(int sd, message* rsp);
