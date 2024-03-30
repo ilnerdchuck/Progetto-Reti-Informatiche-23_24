@@ -7,25 +7,9 @@
 #define MAX_MESSAGE_SIZE 4096
 #define CHUNK_SIZE 1024
 
-//------IO-------//
-enum msgType{
-  COMMAND,
-  SUCCESS,
-  ERROR,
-  TEXT,
-};
-
-enum cmdType{
-  LOGIN,
-  SINGUP,
-
-  //ACTION,
-  //All game type actions
-  //PICKUP
-};
 typedef struct{
-  enum msgType msgtype;
-  enum cmdType cmdtype;
+  int msgtype;
+  int cmdtype;
   char *field;
 } message;
 
