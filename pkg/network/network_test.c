@@ -16,7 +16,7 @@ void *server_thread_func(void *arg) {
 // PING PONG behaviour
 // -----------------------------------------
 void accept_function(int sd) {}
-void input_function(int sd, char *inputText) {}
+void input_function(int sd, const message msg) {}
 int response_function(int sd, const message msg, message *rsp) {
     char *s = "pang";
     if (strcmp(msg.field, "ping") == 0) {
@@ -62,7 +62,6 @@ int TestPingPong() {
     message rsp = {0};
 
     res = request(c, msg_test, &rsp);
-    printf("rsp: %s\n", rsp.field);
     ASSERT(res != -1)
     ASSERT(strcmp("pong", rsp.field) == 0);
 

@@ -1,17 +1,22 @@
 #include "./../test.h"
-#include "./repo/repo.h"
-#include "./../string/string.h"
+#include "repo.h"
+#include <stdlib.h>
+//@ERROR Why it gets multiple definitions of fmt_Sprintf
+//if i include it?
 
-#define REPO_PATH "/tmp/creds.txt"
+//#include "./../string/string.h"
+
+#define REPO_PATH "./tmp/creds.txt"
 
 int TestLogin(){
-    system(fmt_Sprintf("echo maio kek > %s", REPO_PATH));
+    system("echo maio kek > ./tmp/creds.txt");
 
     // login(banana e mazzi)
 
-    system(fmt_Sprintf("echo maio miao > %s", REPO_PATH));
+    system("echo maio miao > ./tmp/creds.txt");
 
     // qui la fai fallire
 
-    system(fmt_Sprintf("rm %s", REPO_PATH));
+    system("rm ./tmp/creds.txt");
+    return 0;
 }

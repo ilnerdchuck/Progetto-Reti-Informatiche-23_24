@@ -28,8 +28,9 @@ int request(client* c, const message payload, message* rsp);
 void delete_client(client* c);
 
 typedef void (*AcceptFunction)(int sd);
-typedef void (*InputFunction)(int sd, char* inputText);
+typedef void (*InputFunction)(int sd, const message msg);
 typedef int (*ResponseFunction)(int sd, const message msg, message* rsp);
+//@TODO add disconnect function
 
 //------SERVER-------//
 struct server {

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -50,8 +51,8 @@ int listen_server(server* s) {
     struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
 
     listen(s->listener, 10);
-
     s->run = 1;
+
     FD_ZERO(&master);
     FD_ZERO(&read_fds);
 
@@ -67,12 +68,17 @@ int listen_server(server* s) {
 
         for (int fd = 0; fd <= fdmax; fd++) {
             if (!FD_ISSET(fd, &read_fds)) continue;
-
-            // TODO: add input callback and fd
+            
+            int err = 0;
+            message msg;
+            
             if (fd == STDIN_FILENO) {
-                // TODO:
-                // receive the message from stdin
-                //s->i(sd, msg);
+                err = _receive(fd, &msg);    
+                if (err != 0) {
+                  FD_CLR(fd, &master);
+                  continue;
+                }
+                s->i(STDIN_FILENO, msg);
                 continue;
             }
             // add a connection in case the full sd is the listener
@@ -81,8 +87,9 @@ int listen_server(server* s) {
                 uint32_t addrlen = sizeof(cl_addr);
 
                 int newsd = accept(s->listener, 
-                                 (struct sockaddr*)&cl_addr,
-                             (socklen_t*)&addrlen);
+                                  (struct sockaddr*)&cl_addr,
+                                  (socklen_t*)&addrlen
+                                  );
 
                 FD_SET(newsd, &master);
                 if (newsd > fdmax) {
@@ -94,24 +101,25 @@ int listen_server(server* s) {
             }
 
             // in case of a message call the receive
-            message msgg;
-            int err = _receive(fd, &msgg);
+            err = _receive(fd, &msg);
 
             // in case of an error close the socket
             if (err != 0) {
                 FD_CLR(fd, &master);
                 close(fd);
-                // TODO: add callback for disconnect
+                //@TODO add callback for disconnect
                 continue;
             }
 
             // call the message callback
             message rsp =  {0};
-            err = s->r(fd, msgg, &rsp);
+            
+            err = s->r(fd, msg, &rsp);
+            
             if (err != 0) {
                 FD_CLR(fd, &master);
                 close(fd);
-                // TODO: add callback for disconnect
+                //@TODO add callback for disconnect
                 continue;
             }
 
@@ -120,13 +128,13 @@ int listen_server(server* s) {
             free(rsp.field);
             rsp.field = NULL;
 
-            free(msgg.field);
-            msgg.field = NULL;
+            free(msg.field);
+            msg.field = NULL;
 
             if (err == -1) {
                 FD_CLR(fd, &master);
                 close(fd);
-                // TODO: add callback for disconnect
+                //@TODO add callback for disconnect
                 continue;
             }
         }
@@ -136,9 +144,8 @@ int listen_server(server* s) {
 
 void stop_server(server* s){
     s->run = 0;
-  
 }
 
 void delete_server(server* s) {
-    // TODO: delete
+    //@TODO delete
 }

@@ -1,11 +1,12 @@
 #pragma once
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
 
 // fmt_Sprintf return an heap allocated formatted string
-char *fmt_Sprintf(const char *format, ...)
+char* fmt_Sprintf(const char *format, ...)
 {
     va_list args;
     va_start(args, format);

@@ -1,24 +1,29 @@
+#include <string.h>
 #include "./../network/network.h"
 #include "./../protocol/protocol.h"
+#include "./../util/input.h"
 
-// BUSINESS LOGIC DEL GAMER
+// Gamer logic
 
 int auth(client* c){
+  
   printf("Autenticazione\n");
   printf("Comandi disponibili:\n");
-  printf("\t -> Sing Up -- Registrati nel sistema\n");
+  printf("\t -> Sign Up -- Registrati nel sistema\n");
   printf("\t -> Login -- Effettua il login");
+  
   char buff[4096] = {0};
 
-  read_stin_line(buff);
+  read_stdin_line(buff);
   
   message credentials = {0};
 
-  if(strcmp(buff, "Sing Up")){
+  if(strcmp(buff, "Sign Up")){
     char usr[1024] = {0};
+    
     while(1){
       printf("Inserisci l'username (Senza spazi):\n");
-      read_stin_line(usr);
+      read_stdin_line(usr);
       if(!strcmp(usr, "") || strchr(usr,' ')){
         printf("Username non valido\n");
         continue;
@@ -31,14 +36,14 @@ int auth(client* c){
 
     while(1){
       printf("Inserisci la password (senza spazi):\n");
-      read_stin_line(pwd1);
+      read_stdin_line(pwd1);
       if (!strcmp(pwd1, "") || strchr(pwd1, ' ')) {
        printf("Password non valida");
         continue;
       }
 
       printf("Inseriscila dinouvo:\n");
-      read_stin_line(pwd2);
+      read_stdin_line(pwd2);
 
       if(!strcmp(pwd1, pwd2)){
         break;
@@ -46,28 +51,31 @@ int auth(client* c){
       printf("Password non uguali");
     }
     
-    //@TODO Send username and password register command
+    //Send username and password register command
     sprintf(credentials.field, "%s %s", usr, pwd1);
-    credentials.msgtype = COMMAND;
-    credentials.cmdtype = SINGUP;
-    message* rsp;
+    credentials.msgtype = MSG_COMMAND;
+    credentials.cmdtype = CMD_SIGNUP;
+    
+    message rsp = {0};
     request(c, credentials, &rsp);
-    // @TODO Check if registration is successful
-    if(rsp->msgtype == ERROR){
-      printf("Registraizone Fallita: %s\n",rsp->field);
+    
+    //Check if registration is successful
+    if(rsp.msgtype == MSG_ERROR){
+      printf("Registraizone Fallita: %s\n",rsp.field);
       return -1;
-    }else if (rsp->msgtype == SUCCESS && rsp->cmdtype == SINGUP) {
+    }else if (rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == CMD_SIGNUP) {
       printf("Registrazione Avvenuta\n");
+      c->logged = 1;
       return 0;
     }
 
 
   }else if(strcmp(buff, "Login")){
-    // @TODO Read username and password
+    //Read username and password
     char usr[1024] = {0};
     while(1){
       printf("Inserisci l'username (Senza spazi):\n");
-      read_stin_line(usr);
+      read_stdin_line(usr);
       if(!strcmp(usr, "") || strchr(usr,' ')){
         printf("Username non valido\n");
         continue;
@@ -79,9 +87,10 @@ int auth(client* c){
 
     while(1){
       printf("Inserisci la password (senza spazi):\n");
-      read_stin_line(pwd1);
+      
+      read_stdin_line(pwd1);
       if (!strcmp(pwd1, "") || strchr(pwd1, ' ')) {
-       printf("Password non valida");
+        printf("Password non valida");
         continue;
       }else{
         break;
@@ -89,20 +98,21 @@ int auth(client* c){
     }
 
     sprintf(credentials.field, "%s %s", usr, pwd1);
-    credentials.msgtype = COMMAND;
-    credentials.cmdtype = LOGIN;
-    message* rsp;
+    credentials.msgtype = MSG_COMMAND;
+    credentials.cmdtype = CMD_LOGIN;
+    
+    message rsp = {0};
     request(c, credentials, &rsp);
- 
-    if(rsp->msgtype == ERROR){
-      printf("Autenticazione Fallita: %s\n", rsp->field);
+    
+    if(rsp.msgtype == MSG_ERROR){
+      printf("Autenticazione Fallita: %s\n", rsp.field);
       return -1;
-    }else if (rsp->msgtype == SUCCESS && rsp->cmdtype == LOGIN) {
+    }else if (rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == CMD_LOGIN) {
       printf("Autenticazione Avvenuta\n");
+      c->logged = 1;
       return 0;
     }
-  }
-  
+  } 
 
   return -1;
 }

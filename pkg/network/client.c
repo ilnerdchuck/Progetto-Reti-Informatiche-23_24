@@ -19,11 +19,13 @@ client *new_client(const char *server_ip, const size_t server_port) {
   if (c == NULL) {
       goto error;
   }
+  
   c->server_ip = malloc(strlen(server_ip) + 1);
   if (c->server_ip == NULL) {
       goto error;
   }
-
+  
+  c->logged = 0;
   memcpy(c->server_ip, server_ip, strlen(server_ip) + 1);
   c->server_port = server_port;
   return c;

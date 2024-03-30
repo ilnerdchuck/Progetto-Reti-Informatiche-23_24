@@ -12,24 +12,23 @@
 
 // msg_serialize serializes the message into the buff, returns err != 0 on error
 int msg_serialize(const message msg, char** buff){
-  
     *buff = fmt_Sprintf("%d %d %s",msg.msgtype,msg.cmdtype,msg.field);
     if (*buff == NULL){
-            return -1;
+        return -1;
     }
     return 0;
 }
 
 // msg_deserialize serilized the buff into the msg, returns err != 0 on error
-int msg_deserialize(const char* buff, message *msg ){
+int msg_deserialize(const char* buff, message *msg){
     msg->field = (char*)malloc(strlen(buff) + 1);
     if (msg->field == NULL) {
         return -1;
     }
+
     sscanf(buff, "%d %d %s",(int*)&msg->msgtype,(int*)&msg->cmdtype,msg->field);
     return 0;
 }
-
 
 // _send sends the msg into the sd, returns err != 0 on error
 int _send(int sd, const message msg) {
@@ -56,12 +55,10 @@ int _send(int sd, const message msg) {
         web_len = htonl(tmp_len);
 
         res = send(sd, &web_len, sizeof(uint32_t), 0);
-        if (res <= 0) {
-            goto error;
-        }
+        if (res <= 0) goto error;
 
         res = send(sd, payload+bytes_sent , tmp_len, 0);
-        if (res <= 0) return -1;
+        if (res <= 0) goto error;
 
         bytes_sent += res;
     }
@@ -77,15 +74,12 @@ error:
 int _receive(int sd, message* msg) {
     uint32_t rcv_len = 0;
     int res = recv(sd, &rcv_len, sizeof(uint32_t), 0);
-    if(res <= 0){
-        return -1;
-    }
+    
+    if(res <= 0) return -1;
 
     uint32_t msg_len = ntohl(rcv_len);
 
-    if(msg_len > MAX_MESSAGE_SIZE){
-        return -1;
-    }
+    if(msg_len > MAX_MESSAGE_SIZE) return -1;
 
     // recive message
     int bytes_recived = 0; 
@@ -95,28 +89,24 @@ int _receive(int sd, message* msg) {
     char tmp_rsp[MAX_MESSAGE_SIZE] = {0};
     char buffer[CHUNK_SIZE] = {0};
     while (bytes_recived < msg_len) {
+    
         memset(buffer, 0, CHUNK_SIZE);
         res = recv(sd, &tmp_len, sizeof(uint32_t), 0);
-        if (res <= 0) {
-            return -1;
-        }
+        if (res <= 0) return -1;
+
         tmp_len = ntohl(tmp_len);
         
         res = recv(sd, &buffer, tmp_len, 0);
-        if (res <= 0) {
-            return -1;
-        }
+        if (res <= 0) return -1;
 
         bytes_recived += res;
         strncat(tmp_rsp, buffer, tmp_len);
     }
 
-    char * rsp = malloc(msg_len);
-    if (rsp == NULL) {
-        return -1;
-    }
+    char* rsp = malloc(msg_len);
+    if (rsp == NULL) return -1;
+
     memcpy(rsp, tmp_rsp, msg_len);
 
     return msg_deserialize(rsp, msg);
 }
-

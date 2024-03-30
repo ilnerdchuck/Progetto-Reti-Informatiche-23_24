@@ -6,13 +6,12 @@ enum msgType{
   MSG_SUCCESS,
   MSG_ERROR,
   MSG_TEXT,
+  MSG_BAD_REQUEST,
 };
 
 enum cmdType{
   CMD_LOGIN,
   CMD_SIGNUP,
-
-  //ACTION,
-  //All game type actions
-  //PICKUP
+  CMD_ACTION,
+  CMD_PICKUP,
 };
