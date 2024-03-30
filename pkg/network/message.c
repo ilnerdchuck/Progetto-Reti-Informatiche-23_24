@@ -8,20 +8,44 @@
 #include <unistd.h>
 
 #include "network.h"
+#include "./../string/string.h"
 
-int _send(int sd, const char* msg) {
-    // check if the message can be sent
-    uint32_t len = strlen(msg) + 1;
-    if (len > MAX_MESSAGE_SIZE) {
+// msg_serialize serializes the message into the buff, returns err != 0 on error
+int msg_serialize(const message msg, char* buff){
+    buff = fmt_Sprintf("%d %d %s",msg.msgtype,msg.cmdtype,msg.field);
+    if (buff == NULL){
+            return -1;
+    }
+    return 0;
+}
+
+// msg_deserialize serilized the buff into the msg, returns err != 0 on error
+int msg_deserialize(const char* buff, message *msg ){
+    msg->field = (char*)malloc(strlen(buff) + 1);
+    if (msg->field == NULL) {
         return -1;
     }
+    sscanf(buff, "%d %d %s",(int*)&msg->msgtype,(int*)&msg->cmdtype,&msg->field);
+    return 0;
+}
 
-    // send msg size
+
+// _send sends the msg into the sd, returns err != 0 on error
+int _send(int sd, const message msg) {
+    char * payload = NULL; 
+    int err = msg_serialize(msg, payload);
+    if (err != 0){
+        return err;
+    }
+
+    // check if the message can be sent
+    uint32_t len = strlen(payload) + 1;
+    if (len > MAX_MESSAGE_SIZE) goto error;
+
+    // send payload size
     uint32_t web_len = htonl(len);
     int res = send(sd, &web_len, sizeof(uint32_t), 0);
-    if (res <= 0) {
-        return -1;
-    }
+    if (res <= 0) goto error;
 
     // send message
     uint32_t bytes_sent = 0;
@@ -31,18 +55,25 @@ int _send(int sd, const char* msg) {
         web_len = htonl(tmp_len);
 
         res = send(sd, &web_len, sizeof(uint32_t), 0);
-        if (res <= 0) return -1;
+        if (res <= 0) {
+            goto error;
+        }
 
-        res = send(sd, msg+bytes_sent , tmp_len, 0);
+        res = send(sd, payload+bytes_sent , tmp_len, 0);
         if (res <= 0) return -1;
 
         bytes_sent += res;
     }
 
     return 0;
+error:
+    free(payload);
+    payload = NULL;
+    return -1;
 }
 
-int _receive(int sd, char** rsp) {
+// _receive reveive the msg from the sd, returns err != 0 on error
+int _receive(int sd, message* msg) {
     uint32_t rcv_len = 0;
     int res = recv(sd, &rcv_len, sizeof(uint32_t), 0);
     if(res <= 0){
@@ -81,50 +112,12 @@ int _receive(int sd, char** rsp) {
         printf("buffer: %s \n",buffer);
     }
 
-    *rsp = malloc(msg_len);
-    if (*rsp == NULL) {
+    char * rsp = malloc(msg_len);
+    if (rsp == NULL) {
         return -1;
     }
+    memcpy(rsp, tmp_rsp, msg_len);
 
-    memcpy(*rsp, tmp_rsp, msg_len);
-    // perché lo devo pulire? non dealloca tutto quando esce dalla func
-    // se lo lascio sporca la risposta successiva
-    // perché alla chiamata successia rialloca la variabile a caso nello stesso posto e 
-    // quindi evviva stessa memoria?
-
-    return 0;
+    return msg_deserialize(rsp, msg);
 }
-
-//@TODO message serialize function
-char* msg_serialize(const msg* message){
-  char* tmp_buff = NULL;
-  sprintf(tmp_buff, "%d %d %s",message->msgtype,message->cmdtype,message->field); 
-  return tmp_buff;
-}
-
-//@TODO message deserialize function
-msg msg_deserialize(char* buff){
-  msg tmp_msg = {0};
-  char* tmp_buff = NULL;
-  sscanf(buff, "%d %d %s",(int*)&tmp_msg.msgtype,(int*)&tmp_msg.cmdtype,tmp_buff);
-  strcpy(tmp_msg.field, tmp_buff);
-
-  return tmp_msg;
-}
-
-int read_stin_line(char *buff){  
-  
-  if(fgets(buff, MAX_MESSAGE_SIZE, STDIN_FILENO) != NULL){ 
-    return strlen(buff)+1;
-  }
-
-  return -1;
-}
-
-
-
-char* readFileLine(){
-  return NULL;
-}
-
 

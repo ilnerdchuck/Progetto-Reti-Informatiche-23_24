@@ -52,8 +52,8 @@ $(BUILD_DIR)/%: cmd/%.o $(BUILD_DIR)/libpkg.a
 build: $(CMD_EXE) # $(BUILD_DIR)/test @FIXME TEST NOT WORKING ATM
 
 # Run target
-#run: build
-#	@$(BUILD_DIR)/$(RUN_ARGS)
+run: build
+	@$(BUILD_DIR)/$(RUN_ARGS)
 
 # General rule for object files
 $(BUILD_DIR)/%.o: %.c

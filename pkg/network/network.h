@@ -23,16 +23,11 @@ enum cmdType{
   //All game type actions
   //PICKUP
 };
-
 typedef struct{
   enum msgType msgtype;
   enum cmdType cmdtype;
-  char field[4096];
-  char field1[1024];
-} msg;
-
-char* msg_serialize(const msg* message);
-msg msg_deserialize(char* buff);
+  char *field;
+} message;
 
 //------CLIENT-------//
 typedef struct {
@@ -45,12 +40,12 @@ typedef struct {
 } client;
 
 client* new_client(const char* server_ip, const size_t server_port);
-int request(client* c, const msg payload, msg** rsp);
+int request(client* c, const message payload, message* rsp);
 void delete_client(client* c);
 
 typedef void (*AcceptFunction)(int sd);
 typedef void (*InputFunction)(int sd, char* inputText);
-typedef int (*ResponseFunction)(int sd, const char* msg, char** rsp);
+typedef int (*ResponseFunction)(int sd, const message msg, message* rsp);
 
 //------SERVER-------//
 struct server {
@@ -65,6 +60,5 @@ int bind_server(server* s, int port);
 int listen_server(server* s);
 void delete_server(server* s);
 
-int _send(int sd, const char* msg);
-int _receive(int sd, char** rsp);
-int read_stin_line(char* buff);
+int _send(int sd, const message msg);
+int _receive(int sd, message* rsp);

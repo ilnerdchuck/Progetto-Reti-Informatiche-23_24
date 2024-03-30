@@ -1,5 +1,4 @@
 #include "network.h"
-
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,84 +6,78 @@
 
 #include "./../test.h"
 
+
 void *server_thread_func(void *arg) {
-  server *s = (server *)arg;
-  listen_server(s);
-  return NULL;
+    server *s = (server *)arg;
+    listen_server(s);
+    return NULL;
 }
 
 // PING PONG behaviour
 // -----------------------------------------
 void accept_function(int sd) {}
 void input_function(int sd, char *inputText) {}
-int response_function(int sd, const char *msg, char **rsp) {
-  char *s = "pang";
-  if (strcmp(msg, "ping") == 0) {
-      s = "pong";
-  }
+int response_function(int sd, const message msg, message *rsp) {
+    char *s = "pang";
+    if (strcmp(msg.field, "ping") == 0) {
+        s = "pong";
+    }
 
-  uint32_t len = strlen(s) + 1;
-  *rsp = malloc(len);
-  if (*rsp == NULL) {
-      return -1;
-  }
-  memcpy(*rsp, s, len);
-  return 0;
+    uint32_t len = strlen(s) + 1;
+    rsp->field = malloc(len);
+    if (rsp->field == NULL) {
+        return -1;
+    }
+    memcpy(rsp->field, s, len);
+    return 0;
 }
 // -----------------------------------------
 
 int TestPingPong() {
-  server *s = new_server(accept_function, input_function, response_function);
 
-  uint32_t port = 2500;
-  int attempts = 0;
-  while (bind_server(s, port) == -1) {
-       port++;
-      attempts++;
-      ASSERT(attempts < 100);
-  }
+    server *s = new_server(accept_function, input_function, response_function);
 
-  pthread_t server_thread;
-  int res = pthread_create(&server_thread, NULL, server_thread_func, s);
-  ASSERT(res == 0);
+    // start the server
+    uint32_t port = 2500;
+    int attempts = 0;
+    while (bind_server(s, port) == -1) {
+        port++;
+        attempts++;
+        ASSERT(attempts < 100);
+    }
 
-  usleep(1000 * 1000);
+    // start the server in a separate thread
+    pthread_t server_thread;
+    int res = pthread_create(&server_thread, NULL, server_thread_func, s);
+    ASSERT(res == 0);   
 
-  client *c = new_client("127.0.0.1", port);
+    // wait for the server to startup 
+    sleep(1);
 
-  msg *rsp = NULL;
-  
-  msg msg_test = {0};
+    client *c = new_client("127.0.0.1", port);
 
-  msg_test.msgtype = TEXT;
-  strcpy(msg_test.field, "ping");
+    message msg_test = {
+        .field = "ping"
+    };
+    message rsp = {0};
 
-  res = request(c, msg_test, &rsp);
-  printf("rsp: %s\n",rsp->field);
-  ASSERT(res != -1)
-  ASSERT(strcmp("pong", rsp->field) == 0);
-  free(rsp);
-  rsp = NULL;
+    res = request(c, msg_test, &rsp);
+    printf("rsp: %s\n", rsp.field);
+    ASSERT(res != -1)
+    ASSERT(strcmp("pong", rsp.field) == 0);
 
-  //msg_test->msgtype = TEXT;
-  strcpy(msg_test.field, "pong");
+    // msg_test->msgtype = TEXT;
+    msg_test.field = "bad ping";
 
-  res = request(c, msg_test, &rsp);
-  ASSERT(res != -1)
-  //questo controllo sotto crea errore
-  ASSERT(strcmp("pang", rsp->field) == 0);
-  free(rsp);
-  rsp = NULL;
+    res = request(c, msg_test, &rsp);
+    ASSERT(res != -1)
+    ASSERT(strcmp("pang", rsp.field) == 0);
 
-  pthread_join(server_thread, NULL);
+    // join the server thread
+    pthread_join(server_thread, NULL);
 
-  delete_server(s);
-  delete_client(c);
+    delete_server(s);
+    delete_client(c);
 
-  return 0;
+    return 0;
 }
-
-//
-// int TestLogin(){
-//   
-// }
