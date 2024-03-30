@@ -10,5 +10,6 @@ void input_function(int sd, char *inputText) {
 int response_function(int sd, const message msg, message *rsp) {}
 
 int main(){
+
     server *s = new_server(accept_function, input_function, response_function);
 }
