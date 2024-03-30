@@ -13,5 +13,5 @@ int TestLogin(){
 
     // qui la fai fallire
 
-    system(fmt_Sprintf("echo maio kek > %s", REPO_PATH));
+    system(fmt_Sprintf("rm %s", REPO_PATH));
 }
