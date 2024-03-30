@@ -1,6 +1,6 @@
 # Define your compiler and flags
 CC := gcc
-CFLAGS := -g
+CFLAGS := -O0 -Wall -std=c11 -g
 CFLAGS_DEP = -MD
 CFLAGS_TOT = $(CFLAGS_DEP) $(CFLAGS)
 
@@ -52,8 +52,8 @@ $(BUILD_DIR)/%: cmd/%.o $(BUILD_DIR)/libpkg.a
 build: $(CMD_EXE) # $(BUILD_DIR)/test @FIXME TEST NOT WORKING ATM
 
 # Run target
-#run: build
-#	@$(BUILD_DIR)/$(RUN_ARGS)
+run: build
+	@$(BUILD_DIR)/$(RUN_ARGS)
 
 # General rule for object files
 $(BUILD_DIR)/%.o: %.c

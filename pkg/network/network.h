@@ -1,23 +1,51 @@
 #pragma once
-#include <stdio.h>
+
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
+#define MAX_MESSAGE_SIZE 4096
+#define CHUNK_SIZE 1024
 
-struct client {
-    char * server_ip;
-    size_t server_port; 
-    size_t client_port; 
-    size_t sd; 
-    int connected;
+typedef struct{
+  int msgtype;
+  int cmdtype;
+  char *field;
+} message;
+
+//------CLIENT-------//
+typedef struct {
+  char* server_ip;
+  size_t server_port;
+  size_t client_port;
+  int sd;
+  int connected;
+  int logged;
+} client;
+
+client* new_client(const char* server_ip, const size_t server_port);
+int request(client* c, const message payload, message* rsp);
+void delete_client(client* c);
+
+typedef void (*AcceptFunction)(int sd);
+typedef void (*InputFunction)(int sd, char* inputText);
+typedef int (*ResponseFunction)(int sd, const message msg, message* rsp);
+
+//------SERVER-------//
+struct server {
+    int listener;
+    int run; 
+    AcceptFunction a;
+    InputFunction i;
+    ResponseFunction r;
     
-} typedef client;
+} typedef server;
 
-client * new_client(const char * server_ip, const size_t server_port, const size_t client_port);
-int request(client * c,const char *msg, char* rsp);
-void delete_client(client * c);
+server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r);
+int bind_server(server* s, int port);
+int listen_server(server* s);
+void delete_server(server* s);
+void stop_server(server*s);
 
-
-int _recive(size_t sd, char* rsp);
-int _send(size_t sd, const char* msg);
-
+int _send(int sd, const message msg);
+int _receive(int sd, message* rsp);

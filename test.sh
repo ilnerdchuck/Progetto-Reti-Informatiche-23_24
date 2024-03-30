@@ -16,7 +16,7 @@ while IFS= read -r path; do
     # Read lines from file
     while IFS= read -r line; do
         # Check for function names
-        if [[ "$line" =~ Test[a-zA-Z0-9_]+\(\) ]]; then
+        if [[ "$line" =~ ^[^/] && "$line" =~ Test[a-zA-Z0-9_]+\(\) ]]; then
             s=$(echo "$line" | sed -e 's/int //' -e 's/().*//')
             calls+=("{$s,\"$s\"}")
         fi

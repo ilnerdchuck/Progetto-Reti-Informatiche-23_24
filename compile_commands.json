@@ -1,0 +1,19 @@
+[
+  {
+    "arguments": [
+      "/usr/lib64/ccache/gcc",
+      "-c",
+      "-O0",
+      "-Wall",
+      "-std=c11",
+      "-g",
+      "build/libpkg.a",
+      "-o",
+      "build/test",
+      "/tmp/test.c"
+    ],
+    "directory": "/home/chuck/uni/Progetto-Reti-Informatiche-23_24",
+    "file": "/tmp/test.c",
+    "output": "/home/chuck/uni/Progetto-Reti-Informatiche-23_24/build/test"
+  }
+]
