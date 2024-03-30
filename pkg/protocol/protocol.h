@@ -2,15 +2,15 @@
 
 //------IO-------//
 enum msgType{
-  COMMAND,
-  SUCCESS,
-  ERROR,
-  TEXT,
+  MSG_COMMAND,
+  MSG_SUCCESS,
+  MSG_ERROR,
+  MSG_TEXT,
 };
 
 enum cmdType{
-  LOGIN,
-  SINGUP,
+  CMD_LOGIN,
+  CMD_SIGNUP,
 
   //ACTION,
   //All game type actions
