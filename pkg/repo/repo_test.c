@@ -13,16 +13,16 @@
 #include "./../test.h"
 
 
-void *kserver_thread_func(void *arg) {
+void *testLogin_server_thread_func(void *arg) {
     server *s = (server *)arg;
     listen_server(s);
     return NULL;
 }
 
 // -----------------------------------------
-void kaccept_function(int sd) {}
-void kinput_function(int sd, const message msg) {}
-int kresponse_function(int sd, const message msg, message *rsp) {
+void testLogin_accept_function(int sd) {}
+void testLogin_input_function(int sd, const message msg) {}
+int testLogin_response_function(int sd, const message msg, message *rsp) {
     int err = 0;
     if(msg.msgtype == MSG_COMMAND){
         if (msg.cmdtype == CMD_LOGIN) {
@@ -66,7 +66,7 @@ int TestLogin(){
     system("touch ./tmp/cred.txt");
     
     //init server
-    server *s = new_server(kaccept_function, kinput_function, kresponse_function);
+    server *s = new_server(testLogin_accept_function, testLogin_input_function, testLogin_response_function);
 
     // start the server
     uint32_t port = 2500;
@@ -78,8 +78,8 @@ int TestLogin(){
     }
 
     // start the server in a separate thread
-    pthread_t kserver_thread;
-    int res = pthread_create(&kserver_thread, NULL, kserver_thread_func, s);
+    pthread_t testLogin_server_thread;
+    int res = pthread_create(&testLogin_server_thread, NULL, testLogin_server_thread_func, s);
     ASSERT(res == 0);   
 
     // wait for the server to startup 
@@ -129,7 +129,7 @@ int TestLogin(){
     
     stop_server(s);
     
-    pthread_join(kserver_thread,NULL);
+    pthread_join(testLogin_server_thread,NULL);
 
     delete_server(s);
     delete_client(c);
