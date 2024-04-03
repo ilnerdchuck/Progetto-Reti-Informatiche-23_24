@@ -112,9 +112,10 @@ int listen_server(server* s) {
             }
 
             // call the message callback
-            message rsp =  {0};
+            message rsp = {0};
             
             err = s->r(fd, msg, &rsp);
+            
             
             if (err != 0) {
                 FD_CLR(fd, &master);

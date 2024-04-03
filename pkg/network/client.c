@@ -101,6 +101,7 @@ int request(client *c, const message payload, message* rsp) {
         close(c->sd);
         return -1;
     }
+
     return _receive(c->sd, rsp);
 }
 

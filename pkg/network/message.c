@@ -12,7 +12,7 @@
 
 // msg_serialize serializes the message into the buff, returns err != 0 on error
 int msg_serialize(const message msg, char** buff){
-    *buff = fmt_Sprintf("%d %d %s",msg.msgtype,msg.cmdtype,msg.field);
+    *buff = fmt_Sprintf("%d_%d_%s_", msg.msgtype, msg.cmdtype, msg.field);
     if (*buff == NULL){
         return -1;
     }
@@ -21,12 +21,16 @@ int msg_serialize(const message msg, char** buff){
 
 // msg_deserialize serilized the buff into the msg, returns err != 0 on error
 int msg_deserialize(const char* buff, message *msg){
+    if (msg->field != NULL) {
+        abort();
+        // return -1;
+    }
     msg->field = (char*)malloc(strlen(buff) + 1);
     if (msg->field == NULL) {
         return -1;
     }
-
-    sscanf(buff, "%d %d %s",(int*)&msg->msgtype,(int*)&msg->cmdtype,msg->field);
+    
+    sscanf(buff, "%d_%d_%[^_]", (int*)&msg->msgtype, (int*)&msg->cmdtype, msg->field);
     return 0;
 }
 
@@ -34,6 +38,7 @@ int msg_deserialize(const char* buff, message *msg){
 int _send(int sd, const message msg) {
     char * payload = NULL; 
     int err = msg_serialize(msg, &payload);
+
     if (err != 0){
         return err;
     }
@@ -62,7 +67,9 @@ int _send(int sd, const message msg) {
 
         bytes_sent += res;
     }
-
+    
+    free(payload);
+    payload = NULL;
     return 0;
 error:
     free(payload);
@@ -105,8 +112,13 @@ int _receive(int sd, message* msg) {
 
     char* rsp = malloc(msg_len);
     if (rsp == NULL) return -1;
-
+    
     memcpy(rsp, tmp_rsp, msg_len);
-
-    return msg_deserialize(rsp, msg);
+    
+    int err = msg_deserialize(rsp,msg);
+    
+    free(rsp);
+    rsp = NULL;
+    
+    return err;
 }

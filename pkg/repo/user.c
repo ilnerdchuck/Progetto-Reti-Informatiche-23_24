@@ -3,9 +3,9 @@
 
 int get_user(const char * path, char* usr, char* pwd){
   FILE* crd_file;
-  char tmp_line[4096];
-  char* f_usr = NULL; 
-  char* f_pwd = NULL;
+  char tmp_line[4096] = {0};
+  char f_usr[2048] = {0}; 
+  char f_pwd[2048] = {0};
 
   crd_file = fopen(path, "r");
   if(crd_file == NULL){
@@ -36,7 +36,7 @@ int create_user(const char * path, char* usr, char* pwd){
     return -2;
   }
   
-  fprintf(crd_file, "%s %s", usr, pwd);
+  fprintf(crd_file, "%s %s\n", usr, pwd);
   fclose(crd_file);
 
   if(get_user(path,usr,pwd)){

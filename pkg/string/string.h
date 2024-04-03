@@ -5,6 +5,12 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+int get_usr_pwd(const char* buff, char* usr, char* pwd){
+    
+    sscanf(buff, "%s %s", usr, pwd);
+    return 0; 
+}
+
 // fmt_Sprintf return an heap allocated formatted string
 char* fmt_Sprintf(const char *format, ...)
 {
