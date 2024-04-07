@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int get_user(const char * path, char* usr, char* pwd){
+int get_user(const char * path, const char* usr, const char* pwd){
   FILE* crd_file;
   char tmp_line[4096] = {0};
   char f_usr[2048] = {0}; 
@@ -27,7 +27,7 @@ int get_user(const char * path, char* usr, char* pwd){
 };
 
 
-int create_user(const char * path, char* usr, char* pwd){
+int create_user(const char * path, const char* usr, const char* pwd){
   //scrivi l'untente nel file
   FILE* crd_file;
   

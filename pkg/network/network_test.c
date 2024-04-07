@@ -16,7 +16,7 @@ void *server_thread_func(void *arg) {
 // PING PONG behaviour
 // -----------------------------------------
 void accept_function(int sd) {}
-void input_function(int sd, const message msg) {}
+void input_function(int sd, const char* inputText) {}
 int response_function(int sd, const message msg, message *rsp) {
     char *s = "pang";
     if (strcmp(msg.field, "pin g") == 0) {
@@ -30,7 +30,7 @@ int response_function(int sd, const message msg, message *rsp) {
     memcpy(rsp->field, s, len);
     return 0;
 }
-// -----------------------------------------
+// ----------------------------------------
 
 int TestPingPong() {
 

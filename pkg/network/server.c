@@ -56,7 +56,7 @@ int listen_server(server* s) {
     FD_ZERO(&master);
     FD_ZERO(&read_fds);
 
-    // FD_SET(STDIN_FILENO, &master);
+    FD_SET(STDIN_FILENO, &master);
     FD_SET(s->listener, &master);
 
     int fdmax = s->listener;
@@ -69,16 +69,21 @@ int listen_server(server* s) {
         for (int fd = 0; fd <= fdmax; fd++) {
             if (!FD_ISSET(fd, &read_fds)) continue;
             
+            printf("palle\n");
+
             int err = 0;
             message msg;
             
             if (fd == STDIN_FILENO) {
-                err = _receive(fd, &msg);    
-                if (err != 0) {
+                char buff[1024] = {0};
+                
+                int ers = read(STDIN_FILENO, buff, 1024);    
+                if (ers < 0 ) {
                   FD_CLR(fd, &master);
                   continue;
                 }
-                s->i(STDIN_FILENO, msg);
+                
+                s->i(STDIN_FILENO, buff);
                 continue;
             }
             // add a connection in case the full sd is the listener
@@ -104,26 +109,17 @@ int listen_server(server* s) {
             err = _receive(fd, &msg);
 
             // in case of an error close the socket
-            if (err != 0) {
-                FD_CLR(fd, &master);
-                close(fd);
-                //@TODO add callback for disconnect
-                continue;
-            }
-
+            
+            if (err == -1) goto error;
+            
             // call the message callback
             message rsp = {0};
             
             err = s->r(fd, msg, &rsp);
             
             
-            if (err != 0) {
-                FD_CLR(fd, &master);
-                close(fd);
-                //@TODO add callback for disconnect
-                continue;
-            }
-
+            if (err == -1) goto error;
+            
             err = _send(fd, rsp);
 
             free(rsp.field);
@@ -132,12 +128,13 @@ int listen_server(server* s) {
             free(msg.field);
             msg.field = NULL;
 
-            if (err == -1) {
+            if (err == -1) goto error;
+            
+            error:
                 FD_CLR(fd, &master);
                 close(fd);
                 //@TODO add callback for disconnect
                 continue;
-            }
         }
     }
     return 0;

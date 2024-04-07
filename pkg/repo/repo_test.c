@@ -1,13 +1,11 @@
-
-#include "./../network/network.h"
 #include <pthread.h>
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 #include <malloc.h>
 #include <stdlib.h>
 
-//#include "./../string/string.h"
+#include "./../network/network.h"
+#include "./../string/string.h"
 #include "./../protocol/protocol.h"
 #include "./../repo/repo.h"
 #include "./../test.h"
@@ -19,9 +17,10 @@ void *testLogin_server_thread_func(void *arg) {
     return NULL;
 }
 
+
 // -----------------------------------------
 void testLogin_accept_function(int sd) {}
-void testLogin_input_function(int sd, const message msg) {}
+void testLogin_input_function(int sd, const char* inputText) {}
 int testLogin_response_function(int sd, const message msg, message *rsp) {
     int err = 0;
     if(msg.msgtype == MSG_COMMAND){
@@ -29,7 +28,11 @@ int testLogin_response_function(int sd, const message msg, message *rsp) {
             char* usr = malloc(strlen(msg.field)+1);
             char* pwd = malloc(strlen(msg.field)+1);
 
-            sscanf(msg.field,"%s %s", usr, pwd);
+            err = get_usr_pwd(msg.field, usr, pwd);
+            if(err != 0){
+                rsp->msgtype = MSG_ERROR;
+                return err;             
+            }
 
             err = get_user("./tmp/cred.txt", usr, pwd);
             if (err != 0) {
@@ -42,7 +45,12 @@ int testLogin_response_function(int sd, const message msg, message *rsp) {
             char* usr = malloc(strlen(msg.field)+1);
             char* pwd = malloc(strlen(msg.field)+1);
 
-            sscanf(msg.field,"%s %s", usr, pwd);
+            err = get_usr_pwd(msg.field, usr, pwd);
+            if(err != 0){
+                rsp->msgtype = MSG_ERROR;
+                return err;
+            }
+
             err = create_user("./tmp/cred.txt", usr, pwd);
             if(err != 0){
                 rsp->msgtype = MSG_ERROR;
@@ -52,7 +60,8 @@ int testLogin_response_function(int sd, const message msg, message *rsp) {
 
         }
     }
-  return err;
+    rsp->msgtype = MSG_BAD_REQUEST;
+    return err;
 }
 // -----------------------------------------
 

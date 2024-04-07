@@ -10,7 +10,6 @@
 #include "network.h"
 #include "./../string/string.h"
 
-// msg_serialize serializes the message into the buff, returns err != 0 on error
 int msg_serialize(const message msg, char** buff){
     *buff = fmt_Sprintf("%d_%d_%s_", msg.msgtype, msg.cmdtype, msg.field);
     if (*buff == NULL){
@@ -19,7 +18,6 @@ int msg_serialize(const message msg, char** buff){
     return 0;
 }
 
-// msg_deserialize serilized the buff into the msg, returns err != 0 on error
 int msg_deserialize(const char* buff, message *msg){
     if (msg->field != NULL) {
         abort();
@@ -68,9 +66,11 @@ int _send(int sd, const message msg) {
         bytes_sent += res;
     }
     
+    
     free(payload);
     payload = NULL;
     return 0;
+
 error:
     free(payload);
     payload = NULL;

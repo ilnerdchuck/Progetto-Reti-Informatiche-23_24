@@ -15,12 +15,11 @@ typedef struct{
 
 //------CLIENT-------//
 typedef struct {
+  int sd;
   char* server_ip;
   size_t server_port;
   size_t client_port;
-  int sd;
   int connected;
-  int logged;
 } client;
 
 client* new_client(const char* server_ip, const size_t server_port);
@@ -28,9 +27,9 @@ int request(client* c, const message payload, message* rsp);
 void delete_client(client* c);
 
 typedef void (*AcceptFunction)(int sd);
-typedef void (*InputFunction)(int sd, const message msg);
+typedef void (*InputFunction)(int sd, const char* inputText);
 typedef int (*ResponseFunction)(int sd, const message msg, message* rsp);
-//@TODO add disconnect function
+//@TODO add disconnect function 
 
 //------SERVER-------//
 struct server {

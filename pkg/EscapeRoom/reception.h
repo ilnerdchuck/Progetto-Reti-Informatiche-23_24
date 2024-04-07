@@ -1,31 +1,15 @@
-#include <string.h>
 
-#include "./../network/network.h"
-#include "./../protocol/protocol.h"
-#include "./../repo/repo.h"
-
-#define REPO_PATH "credentials.txt"
-// SERVER BUSINESS DELLA ROOM 
-
-int login(char* usr, char* pwd){
-  if(get_user(REPO_PATH, usr, pwd) != 0){
-    printf("Utente Non Registrato\n");
-    return -1;
-  }
-  
-  printf("Utente Registrato\n");
-  return 0;
+struct gamer{
+    int sd;
+    char* username;
+    int port; // used only for in-game chat 
+    int room_id;
+    struct gamer* next_gamer;
 };
 
+typedef struct gamer gamer;
 
-int signup(char* usr, char* pwd){
-  //leggere da file e confrontare con utente e password
-  if (get_user(REPO_PATH, usr, pwd) == 0) {
-    printf("Utente giá registrato:\n");
-    return -1;
-  }
-  return create_user(REPO_PATH, usr, pwd);
-};
+gamer* gamer_list;
 
-
-
+int login(const int sd, const char* usr, const char* pwd);
+int signup(const char* usr, const char* pwd);

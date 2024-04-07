@@ -1,0 +1,14 @@
+ci sono 3 stadi ti un utente:
+  - Fuori dall'escape room: non loggato.
+  - Nella reception: loggato. Qui puó accedere a una stanza tra le disponibili oppure forzarne l'apertura di una nuova: il server rispettivamente 
+  lo aggiunge a una stanza dello stesso tipo richiesto oppure ne crea una e lo aggiunge.
+      - quando il giocatore richiede di accedere a una room avvia il server e comunica la porta del suo server per la chat
+      - il server lo inserisce all'interno della room e registra la sua porta
+      - il server risponde all'utente con la lista delle porte degli utenti connessi per la chat 
+      - 
+  - Giocante: sta all'interno di una room.
+
+il server:
+  - quando un utente fa un'azione viene mostrata in broadcast a tutti i presenti nella chat della room tramite
+    i socket
+  - ogni singolo momneto della sua vita decrementa il contatore del tempo rimanente delle room 
