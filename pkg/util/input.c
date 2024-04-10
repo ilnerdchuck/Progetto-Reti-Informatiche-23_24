@@ -1,11 +1,16 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-int read_stdin_line(char* buff){
-  if(fgets(buff, 4096, STDIN_FILENO) == NULL){
+int read_stdin_line(char** buff){
+  size_t len = 0;
+  len = getline(buff, &len, stdin); 
+  if (len < 0){
     return -1;
   }
+  
+  (*buff)[len-1] = '\0';
   return 0;
 }
 

@@ -1,37 +1,49 @@
+#include "reception.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include "./../string/string.h"
 #include "./../repo/repo.h"
+#include "room.h"
 
 #define REPO_PATH "credentials.txt"
 // SERVER BUSINESS DELLA ROOM 
 
 
-int findGamer(int sd){
+int findGamer(int sd, gamer** target){
     for (gamer* tmp = gamer_list; tmp; tmp = tmp->next_gamer) {
         if(tmp->sd == sd){
+            *target = tmp;
             return 0;
         }
     }
-  return -1;
+    
+    return -1;
 }
 
 // Function to create a new gamer
-int newGamer(gamer* head, const int sd, const char* username) {
+int newGamer(gamer** head, const int sd, const char* username) {
     gamer* tmp = (gamer*)malloc(sizeof(gamer));
     tmp->sd = sd;
-    tmp->username = _strdup(username);
+    tmp->username = malloc(strlen(username)+1);
+    strcpy(tmp->username, username);
     tmp->port = 0;
     tmp->room_id = -1;
+    tmp->inventory = NULL;
     tmp->next_gamer = NULL;
     
-    gamer* work = head;
-    while(work->next_gamer != NULL){
+    gamer* work = *head;
+   
+    if(!work){
+        *head = tmp;
+        return 0; 
+    }
+
+    while(work->next_gamer){
         work = work->next_gamer;
     }
 
-    if (work->next_gamer != NULL) {
+    if (work->next_gamer) {
         return -1;
     }
 
@@ -57,27 +69,43 @@ int deleteGamer(gamer *head, const int sd) {
     return 0;
 }
 
+int printGamer(gamer* head, int sd){
+    gamer* tmp_gamer = NULL;
+    int err = findGamer(sd, &tmp_gamer);
+    if (err != 0) {
+        return -1;
+    }
+
+    printf("Gamer: %d %s Room: %d G_port: %d\n", tmp_gamer->sd, tmp_gamer->username, tmp_gamer->room_id, tmp_gamer->port);
+    return 0;
+}
+
+void printGamers(gamer *head){
+    for (gamer* tmp = head; tmp; tmp = tmp->next_gamer) {
+        printf("Gamer: %d %s Room: %d G_port: %d\n", tmp->sd, tmp->username, tmp->room_id, tmp->port);
+    }
+}
+
 // Check if user is registered and add the gamer to the reception
-int login(const int sd, const char* usr, const char* pwd){
+int loginGamer(const int sd, const char* usr, const char* pwd){
   if(get_user(REPO_PATH, usr, pwd) != 0){
     return -1;
   }
-
-  int err = findGamer(sd);
+  gamer* tmp_gamer = NULL;
+  int err = findGamer(sd, &tmp_gamer);
   if(err == 0){
     return -1;
   }
-  
-  err = newGamer(gamer_list, sd, usr);
+   
+  err = newGamer(&gamer_list, sd, usr);
   if (err != 0) {
       return -1;
   }
-
   return 0;
 };
 
 
-int signup(const char* usr, const char* pwd){
+int signupGamer(const char* usr, const char* pwd){
   //leggere da file e confrontare con utente e password
   if (get_user(REPO_PATH, usr, pwd) == 0) {
     return -1;

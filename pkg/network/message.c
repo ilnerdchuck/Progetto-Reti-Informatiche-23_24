@@ -19,10 +19,6 @@ int msg_serialize(const message msg, char** buff){
 }
 
 int msg_deserialize(const char* buff, message *msg){
-    if (msg->field != NULL) {
-        abort();
-        // return -1;
-    }
     msg->field = (char*)malloc(strlen(buff) + 1);
     if (msg->field == NULL) {
         return -1;
@@ -66,7 +62,7 @@ int _send(int sd, const message msg) {
         bytes_sent += res;
     }
     
-    
+     
     free(payload);
     payload = NULL;
     return 0;

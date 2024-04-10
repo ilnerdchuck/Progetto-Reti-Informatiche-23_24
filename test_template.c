@@ -1,5 +1,7 @@
+#include <signal.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <stdlib.h>
 
 int testsResult = 0;
 // Declare the mutex;
@@ -36,8 +38,13 @@ void *run_test(void *arg)
 
 /*{@INCLUDES}*/
 
+static void spacca(){
+  abort();
+}
+
 int main()
 {
+  signal(SIGPIPE, spacca);
 	pthread_t threads[NUM_THREADS];
 	pthread_mutex_init(&mutex, NULL);
 

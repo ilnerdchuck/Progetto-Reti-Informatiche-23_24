@@ -1,3 +1,6 @@
+
+#define  _GNU_SOURCE
+
 #include <arpa/inet.h>
 #include <malloc.h>
 #include <netinet/in.h>
@@ -69,21 +72,23 @@ int listen_server(server* s) {
         for (int fd = 0; fd <= fdmax; fd++) {
             if (!FD_ISSET(fd, &read_fds)) continue;
             
-            printf("palle\n");
-
             int err = 0;
             message msg;
             
             if (fd == STDIN_FILENO) {
-                char buff[1024] = {0};
+                char* buff = NULL;
+                size_t len = 1024;
                 
-                int ers = read(STDIN_FILENO, buff, 1024);    
-                if (ers < 0 ) {
+                len = getline(&buff, &len,stdin);
+                if (len < 0 ) {
+                  free(buff);
                   FD_CLR(fd, &master);
                   continue;
                 }
-                
+                buff[len-1] = '\0';
+
                 s->i(STDIN_FILENO, buff);
+                free(buff);
                 continue;
             }
             // add a connection in case the full sd is the listener
@@ -121,7 +126,7 @@ int listen_server(server* s) {
             if (err == -1) goto error;
             
             err = _send(fd, rsp);
-
+            
             free(rsp.field);
             rsp.field = NULL;
 
@@ -130,11 +135,13 @@ int listen_server(server* s) {
 
             if (err == -1) goto error;
             
-            error:
-                FD_CLR(fd, &master);
-                close(fd);
-                //@TODO add callback for disconnect
-                continue;
+
+            continue;
+error:
+            FD_CLR(fd, &master);
+            close(fd);
+            //@TODO add callback for disconnect
+            continue;
         }
     }
     return 0;

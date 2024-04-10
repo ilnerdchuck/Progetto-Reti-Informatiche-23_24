@@ -9,14 +9,13 @@ int get_usr_pwd(const char* buff, char* usr, char* pwd){
     return 0; 
 }
 
-char* _strdup(const char* src) {
-    char *str;
-
-    str = malloc(strlen(src)+1);
+int strmalloc(char* dst, const char* src) {
+  
+    dst = malloc(strlen(src)+1);
     while (*src)
-        *str++ = *src++;
-    *str = '\0';
-    return str;
+        *dst++ = *src++;
+    *dst = '\0';
+    return 0;
 }
 
 // fmt_Sprintf return an heap allocated formatted string

@@ -6,13 +6,6 @@
 
 #define MAX_PLAYERS 5
 
-typedef struct{
-    char* name;
-    char* desc;
-    char* solve;
-    struct item* next_item;
-} item;
-
 struct game_room{
     int id;
     char* room_map;
@@ -22,7 +15,7 @@ struct game_room{
     struct game_room* next_room;
 } typedef game_room;
 
-game_room* room_list;
+extern game_room* room_list;
 
 int create_room(game_room* head_room, char* map, int time, item* items, gamer* gamers);
 void add_room(game_room* head, game_room* new_room);
