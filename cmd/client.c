@@ -85,7 +85,60 @@ static void input_function(int sd, const char* inputText) {
         }
     }
     if(logged && client_gaming){
-      
+        //get command
+        char curr_command[30] = {0};
+        char curr_value1[30] = {0};
+        char curr_value2[30] = {0};
+        sscanf(inputText, "%s %s %s", curr_command, curr_value1, curr_value2);
+ 
+        if (!strcmp(curr_command, "look")) {
+            err = lookRequest(c, curr_value1);
+            if (err != 0) {
+                goto exit;
+            }
+            goto exit;
+        }      
+ 
+        if (!strcmp(curr_command, "take")) {
+            err = takeRequest(c, curr_value1);
+            if (err != 0) {
+                goto exit;
+            }
+            goto exit;
+        }      
+
+ 
+        if (!strcmp(curr_command, "use")) {
+            err = useRequest(c, curr_value1,curr_value2);
+            if (err != 0) {
+                goto exit;
+            }
+            goto exit;
+        }
+
+        if (!strcmp(curr_command, "obj")) {
+            err = objsRequest(c);
+            if (err != 0) {
+                goto exit;
+            }
+            goto exit;
+        } 
+        
+        if (!strcmp(curr_command, "drop")) {
+            err = dropRequest(c, curr_value1);
+            if (err != 0) {
+                goto exit;
+            }
+            goto exit;
+        } 
+
+        if (!strcmp(curr_command, "end")) {
+            err = useRequest(c);
+            if (err != 0) {
+                goto exit;
+            }
+            goto exit;
+        } 
     }
     
 exit:
