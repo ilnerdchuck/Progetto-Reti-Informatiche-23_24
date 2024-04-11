@@ -51,8 +51,6 @@ int bind_server(server* s, int port) {
 int listen_server(server* s) {
     fd_set master, read_fds;
 
-    struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
-
     listen(s->listener, 10);
     s->run = 1;
 
@@ -67,6 +65,7 @@ int listen_server(server* s) {
     while (s->run) {
         read_fds = master;
 
+	struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
         select(fdmax + 1, &read_fds, NULL, NULL, &timeout);
 
         for (int fd = 0; fd <= fdmax; fd++) {
