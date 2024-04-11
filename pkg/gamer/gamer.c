@@ -2,13 +2,64 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "./../network/network.h"
 #include "./../protocol/protocol.h"
 #include "./../util/util.h"
+#include "./../string/string.h"
 
 // Gamer logic
 
+//-----------------Rooms-----------------
 
+int requestRooms(client* c){
+      message msg = {0};
+      msg.msgtype = MSG_COMMAND;
+      msg.cmdtype = CMD_RROOMS;
+      
+      message rsp = {0};
+
+      int err = request(c,msg,&rsp);
+      if(err != 0){
+          return -1;
+      }
+      if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
+          printf("%s\n",rsp.field);
+          return 0;
+      }
+      return -1;
+}
+
+int requestRoom(client* c, const char* room){
+      message msg = {0};
+      msg.msgtype = MSG_COMMAND;
+      msg.cmdtype = CMD_RROOM;
+      strmalloc(&msg.field, room);
+      
+      message rsp = {0};
+
+      int err = request(c,msg,&rsp);
+      if(err != 0){
+          return -1;
+      }
+        
+      if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
+          printFile("./menus/roomCommands.txt");
+          printf("%s\n",rsp.field);
+          return 0;
+      }
+      if(rsp.msgtype == MSG_ERROR && rsp.cmdtype == msg.cmdtype){
+          printf("%s\n",rsp.field);
+          return -1;
+      }
+
+      return 0;
+}
+
+
+
+
+//------------------Auth-----------------
 int login(client* c){
     int err = 0;
   //Read username and password

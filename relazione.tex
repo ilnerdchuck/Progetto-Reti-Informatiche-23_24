@@ -10,18 +10,88 @@ ci sono 3 stadi ti un utente:
 
 il server:
   - quando un utente fa un'azione viene mostrata in broadcast a tutti i presenti nella chat della room tramite
-    i socket
+i socket
   - ogni singolo momneto della sua vita decrementa il contatore del tempo rimanente delle room 
+
+Feature a scelta: chat P2P
+
+
+
+
+//se voglio mettere oggetti dentro la room faccio cosi
+[oggetto]
+
+//se voglio inserire cose dentro una locazioen faccio cosi
+[locazione] nome
+  [oggetto]
+    nome_token_ .. desc ...
+    
+  [oggetto]
+
+posso anche fare 
+
+[locazione]
+  [oggetto]
+  [locazione]
+    [oggetto]
+    
+struttura location
+  - Nome: nome locazione
+  - item*: lista di item
+  
 
 
 struttura degli oggetti
+[item]
   - Name: nome dell'oggetto
-  - bool: se true solve é il campo da confrontare con l'input 
+  - type: 0(raccoglibile?) 1(solve da stdin) 2(solve con use oggetto1 oggetto 2) 3  
   - Solve: nome dell'oggetto o risposta che risolve l'enigma associato all'oggetto name
-  - Desc: descrizione dell'oggetto
-struttura enigmi?
+  - Solve desc: descrizione di cosa viene fuori quando il puzzle viene risolto
+  - Item: magari aveva un altro oggetto al suo interno o diventa un oggetto utilizzabile
+  - Desc locked: descrizione dell'oggetto eventualmente bloccato
+  - Desc unlocked: descrizione dell'oggetto eventualemnte sbloccato
+
+se su di un oggetto é 
+
+es oggetto puro
+[item]
+  - Name: chiave universale
+  - type: 0
+  - Solve: NULL
+  - Solve desc: NULL
+  - Item*: NULL
+  - Desc locked: chiave arrugginita, sembra possa aprire tutte le serrature
+  - Desc unlocked: NULL;
+
+[item]
+  - Name: Marchingegno Bloccato
+  - type: 2
+  - Solve: "chiave universale"
+  - Solve desc: "il marchingeno apre un cassetto e trovi un punto stella!"
+  - Item: Libro
+  - Desc locked: "il marchingegno non si muove. sembra ci sia una piccola **serratura**"
+
+struttura enigmi
+[riddle]
+
+
+
+[Room Desc]
+Ti trovi in una stanza illuminata solo da una piccola candela, riesci a vedere uno **specchio** 
+
 
 la room é una descrizione che include i nomi degli oggetti in modo tale che il giocatore possa interagirci
+
+/////////Soluzione Iacopesca//////// 
+metto ogni mappa in una cartella e ogni file é una location con i suoi item dentro
+all'inizio viene caricata la location room che é quella di default
+ha una descrizione in testa e poi tutti gli oggetti corrispondenti sotto
+nello stesso formato della soluzione mignesca ma tutto su di una riga
+
+nella descrizione della lovation/room si indica con [location] la posizione di una locazione
+e [item] la posizione degli oggetti nell'ordine in cui vogliamo che siano messi;
+
+
 
 
 es enigma con input da tastiera 

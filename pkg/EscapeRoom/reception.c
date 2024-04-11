@@ -8,16 +8,52 @@
 
 #define REPO_PATH "credentials.txt"
 // SERVER BUSINESS DELLA ROOM 
+//------------------------Rooms----------------------
 
+int avalibleRooms(char** aval_rooms){
+    int err = getAvalibleRooms(aval_rooms);
+    if(err != 0){
+      return -1;
+    }
+    return 0;
+}
 
-int findGamer(int sd, gamer** target){
-    for (gamer* tmp = gamer_list; tmp; tmp = tmp->next_gamer) {
-        if(tmp->sd == sd){
-            *target = tmp;
-            return 0;
+int startRoom(int sd, char* room){
+    int err = 0;
+    char* aval_rooms = NULL;
+    err = getAvalibleRooms(&aval_rooms);
+    if(!strstr(aval_rooms, room)){
+        return -3;
+    }
+    game_room* res = findRoomByMap(room_list, room);
+    if(!res){
+        err = createRoom(&room_list, room, MAX_ROOM_TIME);
+        if (err != 0) {
+            return -1;
         }
     }
     
+    //inserisci gamer nella stanza corrente
+    err = insertGamerInRoom(room_list, sd, room);
+    if(err == -1){
+        return err;
+    }
+    if(err == -2){
+        return err;
+    }
+
+
+    return 0;
+}
+
+//------------------------Gamers----------------------
+int findGamer(int sd, gamer** target){
+    for (gamer* tmp = gamer_list; tmp; tmp = tmp->next_gamer) {
+         if(tmp->sd == sd){
+            *target = tmp;
+            return 0;
+        }
+    } 
     return -1;
 }
 

@@ -9,12 +9,15 @@ int get_usr_pwd(const char* buff, char* usr, char* pwd){
     return 0; 
 }
 
-int strmalloc(char* dst, const char* src) {
-  
-    dst = malloc(strlen(src)+1);
-    while (*src)
-        *dst++ = *src++;
-    *dst = '\0';
+int strmalloc(char** dst, const char* src) {
+    if(!src){
+        return -1;
+    }
+    *dst = malloc(strlen(src)+1);
+    // while (*src)
+    //     *dst++ = *src++;
+    // *dst = '\0';
+    strcpy(*dst, src);
     return 0;
 }
 

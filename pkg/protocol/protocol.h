@@ -12,6 +12,11 @@ enum msgType{
 enum cmdType{
   CMD_LOGIN,
   CMD_SIGNUP,
-  CMD_ACTION,
-  CMD_PICKUP,
+  CMD_LOOK,
+  CMD_TAKE,
+  CMD_USE,
+  CMD_OBJS,
+  CMD_DROP,
+  CMD_RROOMS,
+  CMD_RROOM,
 };

@@ -1,0 +1,5 @@
+
+-----------------------Comandi disponibili------------------------
+show rooms --> mostra le mappe di gioco disponibili
+start [room_name] --> richiede l'ingresso nella stanza room_name
+
