@@ -28,6 +28,7 @@ static void input_function(int sd, const char* inputText) {
     if(!esroom_open){
         if(!strcmp(inputText, "start")){
             esroom_open = 1;
+            system("clear");
             printFile("./menus/startedCommands.txt");
             return;
         }
@@ -73,16 +74,17 @@ static int response_function(int sd, const message msg, message *rsp) {
         if (msg.cmdtype == CMD_LOGIN){
             char* usr = malloc(strlen(msg.field)+1);
             char* pwd = malloc(strlen(msg.field)+1); 
-            
+            int c_s_port = 0;
+
             //Get credentials from the message
-            err = get_usr_pwd(msg.field, usr, pwd);
+            err = get_usr_pwd_port(msg.field, usr, pwd, &c_s_port);
             if (err != 0) { 
                 strmalloc(&rsp->field,"Errore di parsing");
                 goto cmdError;
             }
             
             //Gamer login
-            err = loginGamer(sd, usr, pwd);
+            err = loginGamer(sd, usr, pwd, c_s_port);
             if (err != 0) {
                 printf("errore login nella signup\n");
                 strmalloc(&rsp->field, "Errore di login");
@@ -98,9 +100,9 @@ static int response_function(int sd, const message msg, message *rsp) {
         if (msg.cmdtype == CMD_SIGNUP){
             char* usr = malloc(strlen(msg.field)+1);
             char* pwd = malloc(strlen(msg.field)+1); 
-            
+            int c_s_port = 0;
             //Get credentials
-            err = get_usr_pwd(msg.field, usr, pwd);
+            err = get_usr_pwd_port(msg.field, usr, pwd, &c_s_port);
             if (err != 0) {
                 
                 strmalloc(&rsp->field,"Errore di parsing");
@@ -115,7 +117,7 @@ static int response_function(int sd, const message msg, message *rsp) {
             }
             
             //Gamer login
-            err = loginGamer(sd, usr, pwd);
+            err = loginGamer(sd, usr, pwd, c_s_port);
             
             if (err != 0) {
                 strmalloc(&rsp->field,"Errore di login");

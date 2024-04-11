@@ -4,7 +4,7 @@
 
 extern gamer* gamer_list;
 
-int loginGamer(const int sd, const char* usr, const char* pwd);
+int loginGamer(const int sd, const char* usr, const char* pwd, const int cs_port);
 int signupGamer(const char* usr, const char* pwd);
 
 int avalibleRooms(char** msg);

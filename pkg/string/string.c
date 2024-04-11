@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-int get_usr_pwd(const char* buff, char* usr, char* pwd){
+int get_usr_pwd_port(const char* buff, char* usr, char* pwd, int* cs_port){
     
-    sscanf(buff, "%s %s", usr, pwd);
+    sscanf(buff, "%s %s %d", usr, pwd, cs_port);
     return 0; 
 }
 

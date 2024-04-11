@@ -58,12 +58,12 @@ int findGamer(int sd, gamer** target){
 }
 
 // Function to create a new gamer
-int newGamer(gamer** head, const int sd, const char* username) {
+int newGamer(gamer** head, const int sd, const char* username, const int cs_port) {
     gamer* tmp = (gamer*)malloc(sizeof(gamer));
     tmp->sd = sd;
     tmp->username = malloc(strlen(username)+1);
     strcpy(tmp->username, username);
-    tmp->port = 0;
+    tmp->port = cs_port;
     tmp->room_id = -1;
     tmp->inventory = NULL;
     tmp->next_gamer = NULL;
@@ -123,7 +123,7 @@ void printGamers(gamer *head){
 }
 
 // Check if user is registered and add the gamer to the reception
-int loginGamer(const int sd, const char* usr, const char* pwd){
+int loginGamer(const int sd, const char* usr, const char* pwd, const int cs_port){
   if(get_user(REPO_PATH, usr, pwd) != 0){
     return -1;
   }
@@ -133,7 +133,7 @@ int loginGamer(const int sd, const char* usr, const char* pwd){
     return -1;
   }
    
-  err = newGamer(&gamer_list, sd, usr);
+  err = newGamer(&gamer_list, sd, usr, cs_port);
   if (err != 0) {
       return -1;
   }

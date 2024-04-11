@@ -78,15 +78,18 @@ void delete_room(game_room* head, game_room* room_to_delete) {
     if (head == NULL) {
         return;
     }
+    
     if (head == room_to_delete) {
         head = head->next_room;
         free(room_to_delete);
         return;
     }
+
     game_room* temp = head;
     while (temp->next_room != NULL && temp->next_room != room_to_delete) {
         temp = temp->next_room;
     }
+    
     if (temp->next_room == NULL) {
         return;
     }

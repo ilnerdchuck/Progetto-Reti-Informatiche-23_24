@@ -60,7 +60,7 @@ int requestRoom(client* c, const char* room){
 
 
 //------------------Auth-----------------
-int login(client* c){
+int login(client* c, const int c_s_port){
     int err = 0;
   //Read username and password
     char* usr = NULL;
@@ -98,7 +98,7 @@ int login(client* c){
     message credentials = {0};
     
     credentials.field = malloc(strlen(usr) + strlen(pwd1) +2);
-    sprintf(credentials.field, "%s %s", usr, pwd1);
+    sprintf(credentials.field, "%s %s %d", usr, pwd1, c_s_port);
     credentials.msgtype = MSG_COMMAND;
     credentials.cmdtype = CMD_LOGIN;
     free(usr);
@@ -119,7 +119,7 @@ int login(client* c){
     return -1;
 }
 
-int signup(client* c){
+int signup(client* c, const int c_s_port){
     char* usr = NULL;
     int err = 0;
 
@@ -167,7 +167,7 @@ int signup(client* c){
     //Send username and password register command
   
     credentials.field = malloc(strlen(usr) + strlen(pwd1) +2);
-    sprintf(credentials.field, "%s %s", usr, pwd1);
+    sprintf(credentials.field, "%s %s %d", usr, pwd1, c_s_port);
     credentials.msgtype = MSG_COMMAND;
     credentials.cmdtype = CMD_SIGNUP;
     
