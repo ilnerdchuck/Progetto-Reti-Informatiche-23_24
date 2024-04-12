@@ -57,6 +57,34 @@ int requestRoom(client* c, const char* room){
 }
 
 
+int requestLook(client* c, const char* asset){
+      message msg = {0};
+      msg.msgtype = MSG_COMMAND;
+      msg.cmdtype = CMD_LOOK;
+      strmalloc(&msg.field, asset);
+      
+      message rsp = {0};
+
+      int err = request(c,msg,&rsp);
+      if(err != 0){
+          return -1;
+      }
+        
+      if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
+          printFile("./menus/roomCommands.txt");
+          printf("%s\n",rsp.field);
+          return 0;
+      }
+      if(rsp.msgtype == MSG_ERROR && rsp.cmdtype == msg.cmdtype){
+          printf("%s\n",rsp.field);
+          return -1;
+      }
+
+      return 0;
+}
+
+
+
 
 
 //------------------Auth-----------------

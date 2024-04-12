@@ -153,10 +153,19 @@ static int response_function(int sd, const message msg, message *rsp) {
               strmalloc(&rsp->field,"Room non valida");
               goto cmdError;
             }
-            printf("Nuova room avviata %s\n",msg.field); 
+            setGamerLocation(sd,"room",&rsp->field);
+            printf("Nuova room avviata, mappa: %s\n",msg.field); 
             goto cmdSuccess;
         }
- 
+
+        if(msg.cmdtype == CMD_LOOK){
+            err = findAsset(sd, msg.field, &rsp->field);
+            if(err != 0){
+              strmalloc(&rsp->field, "Errore di listaggio delle room");
+              goto cmdError;
+            }
+            goto cmdSuccess;
+        } 
       }
 
 bad_request:

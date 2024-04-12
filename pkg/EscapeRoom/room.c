@@ -3,16 +3,10 @@
 #include "./../string/string.h"
 #include "reception.h"
 #include <stdlib.h>
+#include <string.h>
 
 // Function to create a new game room an add to the room list
-gamer* findLoggedGamer(gamer* head, int sd){
-    for (gamer* tmp = head; tmp; tmp = tmp->next_gamer) {
-         if(tmp->sd == sd){
-            return tmp;
-        }
-    } 
-    return NULL;
-}
+
 
 
 
@@ -66,11 +60,41 @@ int insertGamerInRoom(game_room* head, int sd, char* room){
     
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     t_gamer->room_id = res->id;
+    strcpy(t_gamer->curr_location,"room");
     res->current_gamers++;
   
     //@TODO: add callback for sending the port to all connected clients
 
     return 0;
+}
+
+
+
+//trova e stampa la location
+location* getLocation(game_room* head, int room_id, char* t_loc){
+    game_room* res = findRoomById(head, room_id);
+    if(res == NULL){
+        return NULL;
+    }
+    for (location* tmp_loc = res->locations; tmp_loc; tmp_loc = tmp_loc->next_location) {
+        if (!strcmp(t_loc, tmp_loc->name)) {
+            return tmp_loc;
+        }
+    }
+    return NULL;
+}
+
+item* findItem(int room_id, char* t_loc, char* it_name){
+    location* t_location = getLocation(room_list, room_id, t_loc);
+    if (t_location == NULL) {
+        return NULL;
+    }
+    for (item* t_item = t_location->items; t_item; t_item = t_item->next_item) {
+        if(!strcmp(t_item->name, it_name)){
+            return t_item;
+        }
+    }
+    return NULL;
 }
 
 // Function to delete a room from the list
@@ -138,5 +162,17 @@ game_room* findRoomByMap(game_room* head, char* map) {
     }
     return NULL;
 }
+// Function to find a room by map
+game_room* findRoomById(game_room* head, int id) {
+    game_room* temp = head;
+    while (temp != NULL) {
+        if (temp->id == id) {
+            return temp;
+        }
+        temp = temp->next_room;
+    }
+    return NULL;
+}
+
 
 

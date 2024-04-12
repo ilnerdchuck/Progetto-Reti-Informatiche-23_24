@@ -11,6 +11,9 @@ int avalibleRooms(char** msg);
 void activeRooms();
 int startRoom(int sd, char* room);
 
+int findAsset(int sd, char* asset, char** rsp);
+int setGamerLocation(int sd, char* loc, char** rsp);
+gamer* findLoggedGamer(gamer* head, int sd);
 int printGamer(gamer* head, int sd);
 void printGamers(gamer* head);
 

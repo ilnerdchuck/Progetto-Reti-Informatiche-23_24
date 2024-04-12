@@ -6,6 +6,7 @@
 
 #define MAX_PLAYERS 5
 #define MAX_ROOM_TIME 5000
+#define MAX_ITEMS_HELD 5
 
 typedef enum {
   ITM_PICKABLE,
@@ -32,7 +33,6 @@ struct location{
     item* items;
     
     struct location* next_location;
-    //@TODO: think if itś a good ideea to have sub locations
 };
 typedef struct location location;
 
@@ -41,6 +41,8 @@ struct gamer{
     char* username;
     int port; // used only for in-game chat 
     int room_id;
+    int items_held;
+    char* curr_location;
     item* inventory;
     struct gamer* next_gamer;
 };
@@ -62,6 +64,11 @@ int createRoom(game_room** head_room, char* map, int time);
 int insertGamerInRoom(game_room* t_room,int sd,char* room);
 void delete_room(game_room* head, game_room* room_to_delete);
 void print_rooms(game_room* head);
+
+location* getLocation(game_room* head, int room_id, char* t_loc);
+item* findItem(int room_id,char* t_loc, char* it_name);
+
+game_room* findRoomById(game_room* head, int id);
 game_room* findRoomByMap(game_room* head, char* map);
 void free_rooms(game_room* head);
 

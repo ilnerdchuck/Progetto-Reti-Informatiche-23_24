@@ -17,6 +17,7 @@ enum cmdType{
   CMD_USE,
   CMD_OBJS,
   CMD_DROP,
+  CMD_END,
   CMD_RROOMS,
   CMD_RROOM,
 };

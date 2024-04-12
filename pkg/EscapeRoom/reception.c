@@ -42,10 +42,8 @@ int startRoom(int sd, char* room){
         return err;
     }
 
-
     return 0;
 }
-
 //------------------------Gamers----------------------
 int findGamer(int sd, gamer** target){
     for (gamer* tmp = gamer_list; tmp; tmp = tmp->next_gamer) {
@@ -65,7 +63,13 @@ int newGamer(gamer** head, const int sd, const char* username, const int cs_port
     strcpy(tmp->username, username);
     tmp->port = cs_port;
     tmp->room_id = -1;
+
+    tmp->curr_location = malloc(100);
+    memset(tmp->curr_location, 0, 100);
+  
     tmp->inventory = NULL;
+    tmp->items_held = 0;
+  
     tmp->next_gamer = NULL;
     
     gamer* work = *head;
@@ -87,7 +91,6 @@ int newGamer(gamer** head, const int sd, const char* username, const int cs_port
     return 0;
 } 
 
-//@TODO: a function for maybe a sssregister
 // Function to delete a gamer
 int deleteGamer(gamer *head, const int sd) {
     gamer* prev = NULL;
@@ -105,6 +108,48 @@ int deleteGamer(gamer *head, const int sd) {
     return 0;
 }
 
+gamer* findLoggedGamer(gamer* head, int sd){
+    for (gamer* tmp = head; tmp; tmp = tmp->next_gamer) {
+         if(tmp->sd == sd){
+            return tmp;
+        }
+    } 
+    return NULL;
+}
+
+int setGamerLocation(int sd, char* loc, char** rsp){
+    gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+    if(!t_gamer){
+        return -1;
+    }
+    
+    location* t_loc = getLocation(room_list, t_gamer->room_id, loc);
+    if(!t_loc){
+        return -1;
+    }
+    strcpy(t_gamer->curr_location,t_loc->name);
+    strmalloc(rsp, t_loc->desc_location);
+    return 0;
+}
+
+int findAsset(int sd, char* asset, char** rsp){
+    gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+    if(t_gamer == NULL){
+        return -1;
+    }
+    item* res = findItem(t_gamer->room_id,t_gamer->curr_location, asset);   
+    if(res == NULL){
+        //item non trovato cerco tra le location
+        int err = setGamerLocation(sd, asset, rsp);
+        if(err != 0){
+            return -1;
+        }
+        return 0;
+    }
+    strmalloc(rsp, res->desc_locked);
+    return 0;
+} 
+
 int printGamer(gamer* head, int sd){
     gamer* tmp_gamer = NULL;
     int err = findGamer(sd, &tmp_gamer);
@@ -112,13 +157,13 @@ int printGamer(gamer* head, int sd){
         return -1;
     }
 
-    printf("Gamer: %d %s Room: %d G_port: %d\n", tmp_gamer->sd, tmp_gamer->username, tmp_gamer->room_id, tmp_gamer->port);
+    printf("Gamer: %d %s Room: %d Loc: %s G_port: %d\n", tmp_gamer->sd, tmp_gamer->username, tmp_gamer->room_id, tmp_gamer->curr_location, tmp_gamer->port);
     return 0;
 }
 
 void printGamers(gamer *head){
     for (gamer* tmp = head; tmp; tmp = tmp->next_gamer) {
-        printf("Gamer: %d %s Room: %d G_port: %d\n", tmp->sd, tmp->username, tmp->room_id, tmp->port);
+        printf("Gamer: %d %s Room: %d Loc: %s G_port: %d\n", tmp->sd, tmp->username, tmp->room_id, tmp->curr_location, tmp->port);
     }
 }
 
