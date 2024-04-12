@@ -89,6 +89,7 @@ item* findItem(int room_id, char* t_loc, char* it_name){
     if (t_location == NULL) {
         return NULL;
     }
+    
     for (item* t_item = t_location->items; t_item; t_item = t_item->next_item) {
         if(!strcmp(t_item->name, it_name)){
             return t_item;
