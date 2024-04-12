@@ -114,7 +114,7 @@ int insertIteminLocation(location* locations,
     strmalloc(&new_item->success_message, item_succ_mess);
     strmalloc(&new_item->desc_locked, item_descl);
     strmalloc(&new_item->desc_unlocked, item_descu);
-  
+    new_item->location = locations->name; 
     new_item->next_item = NULL;
 
     if(!locations->items){

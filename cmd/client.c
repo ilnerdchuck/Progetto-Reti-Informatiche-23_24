@@ -99,14 +99,15 @@ static void input_function(int sd, const char* inputText) {
             goto exit;
         }      
 
- //        if (!strcmp(curr_command, "take")) {
- //            err = takeRequest(c, curr_value1);
- //            if (err != 0) {
- //                goto exit;
- //            }
- //            goto exit;
- //        }      
- //
+        if (!strcmp(curr_command, "take")) {
+            err = requestTake(c, curr_value1);
+            if (err != 0) {
+                goto exit;
+            }
+            printf("Oggetto aggiunto all'inventario\n");
+            goto exit;
+        }      
+
  // 
  //        if (!strcmp(curr_command, "use")) {
  //            err = useRequest(c, curr_value1,curr_value2);
@@ -116,14 +117,14 @@ static void input_function(int sd, const char* inputText) {
  //            goto exit;
  //        }
  //
- //        if (!strcmp(curr_command, "obj")) {
- //            err = objsRequest(c);
- //            if (err != 0) {
- //                goto exit;
- //            }
- //            goto exit;
- //        } 
- //        
+        if (!strcmp(curr_command, "obj")) {
+            err = requestObj(c);
+            if (err != 0) {
+                goto exit;
+            }
+            goto exit;
+        } 
+        
  //        if (!strcmp(curr_command, "drop")) {
  //            err = dropRequest(c, curr_value1);
  //            if (err != 0) {

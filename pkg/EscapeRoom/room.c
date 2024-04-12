@@ -97,6 +97,35 @@ item* findItem(int room_id, char* t_loc, char* it_name){
     return NULL;
 }
 
+item* removeLocationItem(int room_id, char* t_loc, char* it_name){
+    location* t_location = getLocation(room_list, room_id, t_loc);
+    if (t_location == NULL) {
+        return NULL;
+    }
+
+    item* n_item = t_location->items;
+    item* target = NULL;
+    //rimozione testa 
+    if(!strcmp(n_item->name, it_name)){
+        target = n_item;
+        t_location->items = n_item->next_item; 
+        target->next_item = NULL;
+        return target;
+    }
+    
+    //rimozione nel mezzo o coda
+    while(n_item && n_item->next_item){
+        if(!strcmp(n_item->next_item->name, it_name)){
+            break;     
+        }
+        n_item = n_item->next_item; 
+    }
+    target = n_item->next_item;
+    target->next_item = NULL;
+    n_item->next_item = n_item->next_item->next_item;
+    return target;
+}
+
 // Function to delete a room from the list
 void delete_room(game_room* head, game_room* room_to_delete) {
     if (head == NULL) {

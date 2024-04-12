@@ -23,6 +23,7 @@ struct item{
     char* success_message;
     char* desc_locked; // locked description
     char* desc_unlocked; // generic description
+    char* location;
     struct item* next_item;
 };
 typedef struct item item;
@@ -66,6 +67,7 @@ void delete_room(game_room* head, game_room* room_to_delete);
 void print_rooms(game_room* head);
 
 location* getLocation(game_room* head, int room_id, char* t_loc);
+item* removeLocationItem(int room_id, char* t_loc, char* it_name);
 item* findItem(int room_id,char* t_loc, char* it_name);
 
 game_room* findRoomById(game_room* head, int id);

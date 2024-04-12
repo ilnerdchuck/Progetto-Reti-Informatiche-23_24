@@ -44,6 +44,48 @@ int startRoom(int sd, char* room){
 
     return 0;
 }
+
+int retInventory(int sd, char** rsp){
+    char* buff = malloc(4096);
+      
+    gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+    
+    for(item* tmp = t_gamer->inventory; tmp; tmp = tmp->next_item){
+        strcat(buff, tmp->name);
+        strcat(buff, "\n"); 
+    }
+    strmalloc(rsp, buff);
+    return 0;
+}
+
+int insertGamerItem(item** itm_list, item* itm){
+    if(*itm_list == NULL){
+        *itm_list = itm;
+        return 0;
+    }
+    itm->next_item = *itm_list;
+    *itm_list = itm;
+    return 0;
+}
+
+
+
+int takeItem(int sd, char* t_item){
+    gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+    if(t_gamer == NULL){
+        return -1;
+    }
+    
+    item* res = removeLocationItem(t_gamer->room_id,t_gamer->curr_location, t_item);   
+    if(res == NULL){
+        return -1;
+    }
+    //inserimento nella lista degli item del gamer
+    insertGamerItem(&t_gamer->inventory,res);
+
+    return 0;
+ 
+}
 //------------------------Gamers----------------------
 int findGamer(int sd, gamer** target){
     for (gamer* tmp = gamer_list; tmp; tmp = tmp->next_gamer) {

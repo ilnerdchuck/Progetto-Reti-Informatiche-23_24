@@ -164,6 +164,23 @@ static int response_function(int sd, const message msg, message *rsp) {
               strmalloc(&rsp->field, "Errore di listaggio delle room");
               goto cmdError;
             }
+            goto cmdSuccess; 
+        }
+        if(msg.cmdtype == CMD_TAKE){
+            err = takeItem(sd, msg.field);
+            if(err != 0){
+              strmalloc(&rsp->field, "Errore di listaggio delle room");
+              goto cmdError;
+            }
+            goto cmdSuccess;
+        }
+
+        if(msg.cmdtype == CMD_OBJS){
+            int err = retInventory(sd, &rsp->field);
+            if(err != 0){
+              strmalloc(&rsp->field, "Errore di listaggio delle room");
+              goto cmdError;
+            }
             goto cmdSuccess;
         } 
       }
