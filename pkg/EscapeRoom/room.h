@@ -69,6 +69,7 @@ void print_rooms(game_room* head);
 location* getLocation(game_room* head, int room_id, char* t_loc);
 item* removeLocationItem(int room_id, char* t_loc, char* it_name);
 item* findItem(int room_id,char* t_loc, char* it_name);
+int insertLocationItem(int room_id, item* itm);
 
 game_room* findRoomById(game_room* head, int id);
 game_room* findRoomByMap(game_room* head, char* map);

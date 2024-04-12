@@ -9,6 +9,6 @@ int requestLook(client* c, const char* asset);
 int requestTake(client* c, const char* asset);
 int requestUse(client* c, const char* obj_src, const char* obj_dst);
 int requestObj(client* c);
-int requestDrop(client* c, const char* asset);
+int requestDrop(client* c, const char* itm);
 int requestEnd(client* c, const char* asset);
 

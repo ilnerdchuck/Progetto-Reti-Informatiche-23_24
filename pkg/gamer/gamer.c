@@ -133,9 +133,30 @@ int requestTake(client* c, const char* item){
 }
 
 
+int requestDrop(client* c, const char* item){
+      message msg = {0};
+      msg.msgtype = MSG_COMMAND;
+      msg.cmdtype = CMD_DROP;
+      strmalloc(&msg.field, item);
+      
+      message rsp = {0};
 
+      int err = request(c,msg,&rsp);
+      if(err != 0){
+          return -1;
+      }
+        
+      if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
+          return 0;
+      }
 
+      if(rsp.msgtype == MSG_ERROR && rsp.cmdtype == msg.cmdtype){
+          printf("%s\n",rsp.field);
+          return -1;
+      }
 
+      return 0;
+}
 
 //------------------Auth-----------------
 int login(client* c, const int c_s_port){

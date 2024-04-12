@@ -125,14 +125,14 @@ static void input_function(int sd, const char* inputText) {
             goto exit;
         } 
         
- //        if (!strcmp(curr_command, "drop")) {
- //            err = dropRequest(c, curr_value1);
- //            if (err != 0) {
- //                goto exit;
- //            }
- //            goto exit;
- //        } 
- //
+        if (!strcmp(curr_command, "drop")) {
+            err = requestDrop(c, curr_value1);
+            if (err != 0) {
+                goto exit;
+            }
+            goto exit;
+        } 
+
  //        if (!strcmp(curr_command, "end")) {
  //            err = useRequest(c);
  //            if (err != 0) {

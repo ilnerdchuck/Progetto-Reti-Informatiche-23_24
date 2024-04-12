@@ -68,6 +68,41 @@ int insertGamerItem(item** itm_list, item* itm){
     return 0;
 }
 
+//rimuove l'oggetto item dall'inventario dell'utente e lo rimette nella location giusta 
+int dropItem(int sd, char* t_item){
+    gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+    if (t_gamer == NULL) {
+        return -1;
+    }
+    
+    item* n_item = t_gamer->inventory;
+    item* target = NULL;
+    
+    //rimozione testa 
+    if(!strcmp(n_item->name, t_item)){
+        target = n_item;
+        t_gamer->inventory = n_item->next_item; 
+        target->next_item = NULL;
+        insertLocationItem(t_gamer->room_id, target); 
+        return 0;
+    }
+    
+    //rimozione nel mezzo o coda
+    while(n_item && n_item->next_item){
+        if(!strcmp(n_item->next_item->name, t_item)){
+            break;     
+        }
+        n_item = n_item->next_item; 
+    }
+    target = n_item->next_item;
+    n_item->next_item = n_item->next_item->next_item;
+    target->next_item = NULL;
+    insertLocationItem(t_gamer->room_id, target);  
+
+    return 0;
+}
+
+
 
 
 int takeItem(int sd, char* t_item){
@@ -86,6 +121,26 @@ int takeItem(int sd, char* t_item){
     return 0;
  
 }
+//
+// int addAsset(int sd, char* itm){
+//     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+//     if(t_gamer == NULL){
+//         return -1;
+//     }
+//     
+//     item* res = removeLocationItem(t_gamer->room_id,t_gamer->curr_location, itm);   
+//     if(res == NULL){
+//         return -1;
+//     }
+//     //inserimento nella lista degli item del gamer
+//     insertGamerItem(&t_gamer->inventory,res);
+//
+//     return 0;
+//  
+//  
+// }
+
+
 //------------------------Gamers----------------------
 int findGamer(int sd, gamer** target){
     for (gamer* tmp = gamer_list; tmp; tmp = tmp->next_gamer) {

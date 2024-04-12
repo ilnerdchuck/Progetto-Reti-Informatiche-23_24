@@ -12,10 +12,9 @@ void activeRooms();
 int startRoom(int sd, char* room);
 
 int findAsset(int sd, char* asset, char** rsp);
-int takeItem(int sd, char* item);
+int takeItem(int sd, char* itm);
 int retInventory(int sd, char** rsp);
-//int findAsset(int sd, char* asset, char** rsp);
-
+int dropItem(int sd, char* itm);
 
 int setGamerLocation(int sd, char* loc, char** rsp);
 gamer* findLoggedGamer(gamer* head, int sd);

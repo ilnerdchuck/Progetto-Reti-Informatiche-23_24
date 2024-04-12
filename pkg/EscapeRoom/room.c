@@ -7,9 +7,6 @@
 
 // Function to create a new game room an add to the room list
 
-
-
-
 int createRoom(game_room** head_room, char* map, int time) {
     game_room* new_room = (game_room*)malloc(sizeof(game_room));
     new_room->id = 0;
@@ -63,8 +60,6 @@ int insertGamerInRoom(game_room* head, int sd, char* room){
     strcpy(t_gamer->curr_location,"room");
     res->current_gamers++;
   
-    //@TODO: add callback for sending the port to all connected clients
-
     return 0;
 }
 
@@ -98,6 +93,25 @@ item* findItem(int room_id, char* t_loc, char* it_name){
     return NULL;
 }
 
+int insertLocationItem(int room_id, item* itm){
+    location* t_location = getLocation(room_list, room_id, itm->location);
+    if (t_location == NULL) {
+        return -1;
+    }
+    
+    if(t_location->items == NULL){
+        itm->next_item = NULL;
+        t_location->items = itm;
+        return 0;
+    }
+    itm->next_item = t_location->items;
+    t_location->items = itm; 
+
+    return 0;
+}
+
+
+
 item* removeLocationItem(int room_id, char* t_loc, char* it_name){
     location* t_location = getLocation(room_list, room_id, t_loc);
     if (t_location == NULL) {
@@ -122,8 +136,8 @@ item* removeLocationItem(int room_id, char* t_loc, char* it_name){
         n_item = n_item->next_item; 
     }
     target = n_item->next_item;
+    n_item->next_item = n_item->next_item->next_item; 
     target->next_item = NULL;
-    n_item->next_item = n_item->next_item->next_item;
     return target;
 }
 
