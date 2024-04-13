@@ -133,13 +133,15 @@ static void input_function(int sd, const char* inputText) {
             goto exit;
         } 
 
- //        if (!strcmp(curr_command, "end")) {
- //            err = useRequest(c);
- //            if (err != 0) {
- //                goto exit;
- //            }
- //            goto exit;
- //        } 
+        if (!strcmp(curr_command, "end")) {
+            err = requestEnd(c);
+            if (err != 0) {
+                goto exit;
+            }
+            stop_server(s_client);
+
+            goto exit;
+        } 
     }
     
 exit:
@@ -147,10 +149,12 @@ exit:
   
 }
 static int response_function(int sd, const message msg, message *rsp) {
-
-  return 0;
+    return 0;
 }
 
+void disconnect_function(int sd) {
+    
+}
 int main(int argc, char* argv[]){
 
     system("clear");
@@ -160,7 +164,7 @@ int main(int argc, char* argv[]){
         port = read_port("./port.txt");
     }
     c = new_client("127.0.0.1", port);
-    s_client = new_server(accept_function, input_function, response_function);
+    s_client = new_server(accept_function, input_function, response_function, disconnect_function);
     
     while (bind_server(s_client, s_client_port) == -1) {
         s_client_port++;
@@ -169,4 +173,6 @@ int main(int argc, char* argv[]){
     printFile("./menus/initClient.txt");
 
     listen_server(s_client);
+
+    return 0;
 }

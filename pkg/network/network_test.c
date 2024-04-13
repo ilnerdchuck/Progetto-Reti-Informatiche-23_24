@@ -30,11 +30,12 @@ int response_function(int sd, const message msg, message *rsp) {
     memcpy(rsp->field, s, len);
     return 0;
 }
+void disconnect_function(int sd) {}
 // ----------------------------------------
 
 int TestPingPong() {
 
-    server *s = new_server(accept_function, input_function, response_function);
+    server *s = new_server(accept_function, input_function, response_function, disconnect_function);
 
     // start the server
     uint32_t port = 2500;

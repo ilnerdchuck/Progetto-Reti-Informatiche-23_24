@@ -17,7 +17,7 @@
 
 #include "network.h"
 
-server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r) {
+server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r, DisconnectFunction d) {
     // TODO: check that functions are not null
     server* s = malloc(sizeof(server));
     if (s == NULL) {
@@ -27,6 +27,7 @@ server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r) {
     s->a = a;
     s->i = i;
     s->r = r;
+    s->d = d;
     
 
     s->listener = socket(AF_INET, SOCK_STREAM, 0);
@@ -65,7 +66,7 @@ int listen_server(server* s) {
     while (s->run) {
         read_fds = master;
 
-	struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
+	      struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
         select(fdmax + 1, &read_fds, NULL, NULL, &timeout);
 
         for (int fd = 0; fd <= fdmax; fd++) {
@@ -121,7 +122,6 @@ int listen_server(server* s) {
             
             err = s->r(fd, msg, &rsp);
             
-            
             if (err == -1) goto error;
             
             err = _send(fd, rsp);
@@ -139,7 +139,9 @@ int listen_server(server* s) {
 error:
             FD_CLR(fd, &master);
             close(fd);
-            //@TODO add callback for disconnect
+
+            s->d(fd);
+
             continue;
         }
     }

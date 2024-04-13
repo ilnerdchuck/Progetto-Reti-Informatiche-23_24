@@ -15,6 +15,7 @@ int findAsset(int sd, char* asset, char** rsp);
 int takeItem(int sd, char* itm);
 int retInventory(int sd, char** rsp);
 int dropItem(int sd, char* itm);
+int dropGamer(int sd);
 
 int setGamerLocation(int sd, char* loc, char** rsp);
 gamer* findLoggedGamer(gamer* head, int sd);

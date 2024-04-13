@@ -10,5 +10,5 @@ int requestTake(client* c, const char* asset);
 int requestUse(client* c, const char* obj_src, const char* obj_dst);
 int requestObj(client* c);
 int requestDrop(client* c, const char* itm);
-int requestEnd(client* c, const char* asset);
+int requestEnd(client* c);
 

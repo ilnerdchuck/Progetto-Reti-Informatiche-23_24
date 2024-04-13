@@ -29,7 +29,7 @@ void delete_client(client* c);
 typedef void (*AcceptFunction)(int sd);
 typedef void (*InputFunction)(int sd, const char* inputText);
 typedef int (*ResponseFunction)(int sd, const message msg, message* rsp);
-//@TODO add disconnect function 
+typedef void (*DisconnectFunction)(int sd);
 
 //------SERVER-------//
 struct server {
@@ -38,10 +38,10 @@ struct server {
     AcceptFunction a;
     InputFunction i;
     ResponseFunction r;
-    
+    DisconnectFunction d;    
 } typedef server;
 
-server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r);
+server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r, DisconnectFunction d);
 int bind_server(server* s, int port);
 int listen_server(server* s);
 void delete_server(server* s);

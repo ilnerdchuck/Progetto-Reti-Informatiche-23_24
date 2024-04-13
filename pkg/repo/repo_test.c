@@ -63,6 +63,7 @@ int testLogin_response_function(int sd, const message msg, message *rsp) {
     rsp->msgtype = MSG_BAD_REQUEST;
     return err;
 }
+void testLogin_disconnect_function(int sd) {}
 // -----------------------------------------
 
 
@@ -75,7 +76,7 @@ int TestLogin(){
     system("touch ./tmp/cred.txt");
     
     //init server
-    server *s = new_server(testLogin_accept_function, testLogin_input_function, testLogin_response_function);
+    server *s = new_server(testLogin_accept_function, testLogin_input_function, testLogin_response_function, testLogin_disconnect_function);
 
     // start the server
     uint32_t port = 2500;

@@ -169,7 +169,7 @@ static int response_function(int sd, const message msg, message *rsp) {
         if(msg.cmdtype == CMD_TAKE){
             err = takeItem(sd, msg.field);
             if(err != 0){
-              strmalloc(&rsp->field, "Errore di listaggio delle room");
+              strmalloc(&rsp->field, "Errore nel prendere l'oggetto");
               goto cmdError;
             }
             goto cmdSuccess;
@@ -187,6 +187,15 @@ static int response_function(int sd, const message msg, message *rsp) {
             int err = dropItem(sd, msg.field);
             if(err != 0){
               strmalloc(&rsp->field, "Errore di listaggio delle room");
+              goto cmdError;
+            }
+            goto cmdSuccess;
+        }
+
+        if(msg.cmdtype == CMD_END){
+            int err = dropGamer(sd);
+            if(err != 0){
+              strmalloc(&rsp->field, "Errore nella cancellazioen del gamer");
               goto cmdError;
             }
             goto cmdSuccess;
@@ -209,11 +218,17 @@ cmdError:
     return 0;
 }   
 
+static void disconnect_function(int sd) {
+    dropGamer(sd);
+}
+
+
+
 int main(int argc, char* argv[]){
 
     system("clear");
 
-    s = new_server(accept_function, input_function, response_function);
+    s = new_server(accept_function, input_function, response_function, disconnect_function);
     
     uint32_t port = 2500;
     while (bind_server(s, port) == -1) {

@@ -78,7 +78,7 @@ int _receive(int sd, message* msg) {
     uint32_t rcv_len = 0;
     int res = recv(sd, &rcv_len, sizeof(uint32_t), 0);
     
-    if(res <= 0) return -1;
+    if(res <= 0) return res;
 
     uint32_t msg_len = ntohl(rcv_len);
 
@@ -95,12 +95,12 @@ int _receive(int sd, message* msg) {
     
         memset(buffer, 0, CHUNK_SIZE);
         res = recv(sd, &tmp_len, sizeof(uint32_t), 0);
-        if (res <= 0) return -1;
+        if (res <= 0) return res;
 
         tmp_len = ntohl(tmp_len);
         
         res = recv(sd, &buffer, tmp_len, 0);
-        if (res <= 0) return -1;
+        if (res <= 0) return res;
 
         bytes_recived += res;
         strncat(tmp_rsp, buffer, tmp_len);

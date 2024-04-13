@@ -47,9 +47,15 @@ int startRoom(int sd, char* room){
 
 int retInventory(int sd, char** rsp){
     char* buff = malloc(4096);
-      
+    memset(buff, 0, 4096);
+
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     
+    if(t_gamer->inventory == NULL){
+        strmalloc(rsp, " ");
+        return 0;
+    }
+  
     for(item* tmp = t_gamer->inventory; tmp; tmp = tmp->next_item){
         strcat(buff, tmp->name);
         strcat(buff, "\n"); 
@@ -189,16 +195,22 @@ int newGamer(gamer** head, const int sd, const char* username, const int cs_port
 } 
 
 // Function to delete a gamer
-int deleteGamer(gamer *head, const int sd) {
+int deleteGamer(gamer** head, const int sd) {
     gamer* prev = NULL;
-    gamer* next = head;
+    gamer* next = *head;
+
+    if(next && !next->next_gamer){
+        *head = NULL;
+        free(next);
+        return 0;
+    }
+
 
     while (next != NULL && next->sd != sd) {
         prev = next;
         next = next->next_gamer;
     }
-
-    if (next == NULL) return -2;
+ 
 
     prev->next_gamer = next->next_gamer;
     free(next);
@@ -291,5 +303,28 @@ int signupGamer(const char* usr, const char* pwd){
   return create_user(REPO_PATH, usr, pwd);
 };
 
+
+int dropGamer(int sd){
+    gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+    if (t_gamer == NULL) {
+        return -1;
+    } 
+    item* target = NULL;
+
+    for (item* tmp = t_gamer->inventory; tmp; tmp = t_gamer->inventory) {
+        target = tmp;
+        t_gamer->inventory = tmp->next_item; 
+        target->next_item = NULL;
+        insertLocationItem(t_gamer->room_id, target);  
+    }
+    game_room* t_room = findRoomById(room_list, t_gamer->room_id);
+    if(t_room == NULL){
+        return 0;
+    }
+    t_room->current_gamers--;
+    
+    deleteGamer(&gamer_list, sd);
+    return 0;
+}
 
 
