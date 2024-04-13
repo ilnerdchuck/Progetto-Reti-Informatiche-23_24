@@ -93,7 +93,7 @@ static int response_function(int sd, const message msg, message *rsp) {
             
             printf("Accesso effettuato da:\n");
             printGamer(gamer_list, sd);
-            
+            strmalloc(&rsp->field, "vuoto");
             goto cmdSuccess;
         }
 
@@ -192,14 +192,6 @@ static int response_function(int sd, const message msg, message *rsp) {
             goto cmdSuccess;
         }
 
-        if(msg.cmdtype == CMD_END){
-            int err = dropGamer(sd);
-            if(err != 0){
-              strmalloc(&rsp->field, "Errore nella cancellazioen del gamer");
-              goto cmdError;
-            }
-            goto cmdSuccess;
-        } 
       }
 
 bad_request:

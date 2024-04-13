@@ -32,7 +32,6 @@ int msg_deserialize(const char* buff, message *msg){
 int _send(int sd, const message msg) {
     char * payload = NULL; 
     int err = msg_serialize(msg, &payload);
-
     if (err != 0){
         return err;
     }
@@ -78,7 +77,7 @@ int _receive(int sd, message* msg) {
     uint32_t rcv_len = 0;
     int res = recv(sd, &rcv_len, sizeof(uint32_t), 0);
     
-    if(res <= 0) return res;
+    if(res <= 0) return -1;
 
     uint32_t msg_len = ntohl(rcv_len);
 
@@ -87,20 +86,18 @@ int _receive(int sd, message* msg) {
     // recive message
     int bytes_recived = 0; 
     uint32_t tmp_len = 0;
-    //conviene fare cosi o allorare con una malloc nello heap?
-    //il farlo sempre a ogni send conviene o no?
     char tmp_rsp[MAX_MESSAGE_SIZE] = {0};
     char buffer[CHUNK_SIZE] = {0};
     while (bytes_recived < msg_len) {
     
         memset(buffer, 0, CHUNK_SIZE);
         res = recv(sd, &tmp_len, sizeof(uint32_t), 0);
-        if (res <= 0) return res;
+        if (res <= 0) return -1;
 
         tmp_len = ntohl(tmp_len);
         
         res = recv(sd, &buffer, tmp_len, 0);
-        if (res <= 0) return res;
+        if (res <= 0) return -1;
 
         bytes_recived += res;
         strncat(tmp_rsp, buffer, tmp_len);
@@ -115,6 +112,6 @@ int _receive(int sd, message* msg) {
     
     free(rsp);
     rsp = NULL;
-    
+
     return err;
 }

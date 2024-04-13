@@ -139,7 +139,7 @@ int listen_server(server* s) {
 error:
             FD_CLR(fd, &master);
             close(fd);
-
+            
             s->d(fd);
 
             continue;

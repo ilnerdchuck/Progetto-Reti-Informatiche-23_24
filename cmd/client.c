@@ -134,10 +134,10 @@ static void input_function(int sd, const char* inputText) {
         } 
 
         if (!strcmp(curr_command, "end")) {
-            err = requestEnd(c);
-            if (err != 0) {
-                goto exit;
-            }
+            // err = requestEnd(c);
+            // if (err != 0) {
+            //     goto exit;
+            // }
             stop_server(s_client);
 
             goto exit;
