@@ -309,6 +309,10 @@ int dropGamer(int sd){
     if (t_gamer == NULL) {
         return -1;
     } 
+
+    if (t_gamer->room_id == -1) {
+        deleteGamer(&gamer_list, sd);
+    }
     item* target = NULL;
 
     for (item* tmp = t_gamer->inventory; tmp; tmp = t_gamer->inventory) {
@@ -317,6 +321,7 @@ int dropGamer(int sd){
         target->next_item = NULL;
         insertLocationItem(t_gamer->room_id, target);  
     }
+
     game_room* t_room = findRoomById(room_list, t_gamer->room_id);
     if(t_room == NULL){
         return 0;

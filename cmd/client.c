@@ -134,11 +134,6 @@ static void input_function(int sd, const char* inputText) {
         } 
 
         if (!strcmp(curr_command, "end")) {
-            // err = requestEnd(c);
-            // if (err != 0) {
-            //     goto exit;
-            // }
-            stop_server(s_client);
 
             goto exit;
         } 
@@ -152,9 +147,8 @@ static int response_function(int sd, const message msg, message *rsp) {
     return 0;
 }
 
-void disconnect_function(int sd) {
-    
-}
+void disconnect_function(int sd) {}
+
 int main(int argc, char* argv[]){
 
     system("clear");
