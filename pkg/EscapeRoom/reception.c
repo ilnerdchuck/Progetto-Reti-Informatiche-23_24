@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
 #include "./../string/string.h"
 #include "./../repo/repo.h"
 #include "room.h"
@@ -44,6 +47,28 @@ int startRoom(int sd, char* room){
 
     return 0;
 }
+
+//Adds a point and check game status
+int pointaddHandler(int room_id){
+    //remove a token 
+    game_room* t_room = findRoomById(room_list, room_id);
+    if(t_room == NULL){
+        return -1;
+    }
+    t_room->tokens--;
+    //check if the game is won
+    if(!t_room->tokens){
+        int err = sendRoomWinMessage(room_id);
+        if(err != 0){
+            return -1;
+        }
+        err = delete_room(&room_list, t_room); 
+        if(err != 0){
+            return -1;
+        }
+    }
+    return 0;
+    }
 
 int retInventory(int sd, char** rsp){
     char* buff = malloc(4096);
@@ -111,42 +136,124 @@ int dropItem(int sd, char* t_item){
 
 
 
-int takeItem(int sd, char* t_item){
+int takeItem(int sd, char* t_item, char** rsp){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     if(t_gamer == NULL){
         return -1;
     }
+    if(t_gamer->items_held == MAX_ITEMS_HELD){
+        return -2;
+    }
     
-    item* res = removeLocationItem(t_gamer->room_id,t_gamer->curr_location, t_item);   
+    item* res = findItem(t_gamer->room_id,t_gamer->curr_location, t_item);   
     if(res == NULL){
         return -1;
     }
+    
+    if(res->itemType == 1){
+        strmalloc(rsp, res->desc_locked);  
+        return 1;
+    
+    }
+    if(res->itemType == 2){
+        strmalloc(rsp, res->desc_locked);  
+        return 2;
+    }
+    res = removeLocationItem(t_gamer->room_id,t_gamer->curr_location, t_item);   
+    if(res == NULL){
+        return -1;
+    }
+    if (res->token) {
+      pointaddHandler(t_gamer->room_id);
+    } 
     //inserimento nella lista degli item del gamer
     insertGamerItem(&t_gamer->inventory,res);
-
+    t_gamer->items_held++;
     return 0;
  
 }
-//
-// int addAsset(int sd, char* itm){
-//     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
-//     if(t_gamer == NULL){
-//         return -1;
-//     }
-//     
-//     item* res = removeLocationItem(t_gamer->room_id,t_gamer->curr_location, itm);   
-//     if(res == NULL){
-//         return -1;
-//     }
-//     //inserimento nella lista degli item del gamer
-//     insertGamerItem(&t_gamer->inventory,res);
-//
-//     return 0;
-//  
-//  
-// }
+
+int checkRiddle(int sd, char* buff, char **rsp){
+    gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+    if(t_gamer == NULL){
+        return -1;
+    }
+    char* itm = malloc(100);
+    char* answer = malloc(300);
+    sscanf(buff,"%s %s", itm, answer);
+
+    item* res = findItem(t_gamer->room_id,t_gamer->curr_location, itm);   
+    if(res == NULL){
+        return -1;
+    }
+    
+    if(res->itemType == 1){
+        if (!strcmp(res->answer, answer)) {
+            strmalloc(rsp, res->success_message);
+    
+            res = removeLocationItem(t_gamer->room_id,t_gamer->curr_location, itm);   
+            if(res == NULL){
+                return -1;
+            }
+            if (res->token) {
+                pointaddHandler(t_gamer->room_id);
+            }
+            insertGamerItem(&t_gamer->inventory,res);
+            t_gamer->items_held++;
+
+            return 0;
+        }
+        strmalloc(rsp, "Risposta errata");
+        return -1;
+    
+    }
+    return -1; 
+}
 
 
+
+int polymerization(int sd, char* obj_src, char* obj_dst, char** rsp){
+    gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+    if (t_gamer == NULL) {
+        return -1;
+    }
+    if(t_gamer->room_id == -1){
+        return -1;
+    }
+
+    item* dst = findItem(t_gamer->room_id, t_gamer->curr_location, obj_dst);
+    if(dst == NULL){
+        return -1;
+    }
+    if(dst->itemType != ITM_PUZZLE){
+        return 1;
+    }
+    //call a inventory find item
+    item* src = findInvItem(sd, obj_src);
+    if(src == NULL){
+        return -1;
+    }  
+
+    if(!strcmp(src->name, dst->answer)){
+        strmalloc(rsp, dst->success_message);
+    
+        item* res = removeLocationItem(t_gamer->room_id,t_gamer->curr_location, obj_dst);   
+        if(res == NULL){
+            return -1;
+        }
+        if (dst->token) {
+            pointaddHandler(t_gamer->room_id);
+            dst->token = 0;
+        }
+        insertGamerItem(&t_gamer->inventory,res);
+        t_gamer->items_held++;
+
+        return 0;
+    }
+    strmalloc(rsp, "Oggetto errato");
+
+    return 0;
+}
 //------------------------Gamers----------------------
 int findGamer(int sd, gamer** target){
     for (gamer* tmp = gamer_list; tmp; tmp = tmp->next_gamer) {
@@ -271,9 +378,23 @@ int printGamer(gamer* head, int sd){
 }
 
 void printGamers(gamer *head){
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+    int width = w.ws_col;
+
+    for(int i = 0; i < width; i++) {
+        printf("*");
+    }
+    printf("\n");
     for (gamer* tmp = head; tmp; tmp = tmp->next_gamer) {
         printf("Gamer: %d %s Room: %d Loc: %s G_port: %d\n", tmp->sd, tmp->username, tmp->room_id, tmp->curr_location, tmp->port);
     }
+
+    for(int i = 0; i < width; i++) {
+        printf("*");
+    }
+    printf("\n");
 }
 
 // Check if user is registered and add the gamer to the reception
@@ -302,6 +423,31 @@ int signupGamer(const char* usr, const char* pwd){
   }
   return create_user(REPO_PATH, usr, pwd);
 };
+
+int dropRoomGamer(int sd){
+    gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+    if (t_gamer == NULL) {
+        return -1;
+    } 
+
+    item* target = NULL;
+
+    for (item* tmp = t_gamer->inventory; tmp; tmp = t_gamer->inventory) {
+        target = tmp;
+        t_gamer->inventory = tmp->next_item; 
+        target->next_item = NULL;
+        insertLocationItem(t_gamer->room_id, target);  
+    }
+
+    game_room* t_room = findRoomById(room_list, t_gamer->room_id);
+    if(t_room == NULL){
+        return 0;
+    }
+    t_room->current_gamers--;
+    t_gamer->room_id = -1; 
+    return 0;
+}
+
 
 
 int dropGamer(int sd){

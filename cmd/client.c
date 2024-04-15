@@ -108,16 +108,16 @@ static void input_function(int sd, const char* inputText) {
             goto exit;
         }      
 
- // 
- //        if (!strcmp(curr_command, "use")) {
- //            err = useRequest(c, curr_value1,curr_value2);
- //            if (err != 0) {
- //                goto exit;
- //            }
- //            goto exit;
- //        }
- //
-        if (!strcmp(curr_command, "obj")) {
+
+        if (!strcmp(curr_command, "use")) {
+            err = usePolymerization(c, curr_value1, curr_value2);
+            if (err != 0) {
+                goto exit;
+            }
+            goto exit;
+        }
+
+        if (!strcmp(curr_command, "objs")) {
             err = requestObj(c);
             if (err != 0) {
                 goto exit;
@@ -144,6 +144,15 @@ exit:
   
 }
 static int response_function(int sd, const message msg, message *rsp) {
+    if(msg.msgtype == MSG_TEXT){
+        printf("%s\n", msg.field);
+        if(msg.cmdtype == CMD_WIN){
+            printf("win\n");
+            client_gaming = 0;
+        }
+        rsp->msgtype = MSG_SUCCESS;
+    }
+
     return 0;
 }
 

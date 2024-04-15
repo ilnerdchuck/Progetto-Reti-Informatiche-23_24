@@ -120,8 +120,72 @@ int requestTake(client* c, const char* item){
       if(err != 0){
           return -1;
       }
+
+      if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
+          return 0;
+      }
+
+      if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == CMD_ANSWER){
+          printf("%s\n",rsp.field);
+          char* buff = NULL;
+          read_stdin_line(&buff);
+          
+          message ans = {0};
+          char* answer = malloc(strlen(buff)+strlen(msg.field)+2); 
+          ans.msgtype = MSG_COMMAND;
+          ans.cmdtype = CMD_ANSWER;
+          sprintf(answer, "%s %s", msg.field, buff);
+          strmalloc(&ans.field, answer);
+            
+          message res = {0};
+
+          err = request(c, ans, &res);
+          if (err != 0) {
+              return -1;
+          }
+          if(res.msgtype == MSG_SUCCESS && res.cmdtype == ans.cmdtype){
+              printf("%s\n",res.field);
+              return 0;
+          }
+
+          if(res.msgtype == MSG_ERROR && res.cmdtype == ans.cmdtype){
+              printf("%s\n",rsp.field);
+              return -1;
+          }
+
+              
+          return 0;
+      } 
+
+
+      if(rsp.msgtype == MSG_ERROR && rsp.cmdtype == msg.cmdtype){
+          printf("%s\n",rsp.field);
+          return -1;
+      }
+
+      return 0;
+}
+
+int usePolymerization(client* c, char* obj_src,char* obj_dst){
+      message msg = {0};
+      msg.msgtype = MSG_COMMAND;
+      msg.cmdtype = CMD_USE;
+
+      char* buff = malloc(strlen(obj_src)+strlen(obj_dst)+2);
+      sprintf(buff,"%s %s", obj_src, obj_dst);
+      strmalloc(&msg.field, buff);
+      free(buff);
+
+      message rsp = {0};
+
+      int err = request(c,msg,&rsp);
+      if(err != 0){
+          return -1;
+      }
         
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
+          printFile("./menus/roomCommands.txt");
+          printf("%s\n",rsp.field);
           return 0;
       }
       if(rsp.msgtype == MSG_ERROR && rsp.cmdtype == msg.cmdtype){
@@ -129,7 +193,7 @@ int requestTake(client* c, const char* item){
           return -1;
       }
 
-      return 0;
+      return 0; 
 }
 
 

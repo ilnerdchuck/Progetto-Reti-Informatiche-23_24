@@ -63,13 +63,16 @@ extern game_room* room_list;
 
 int createRoom(game_room** head_room, char* map, int time);
 int insertGamerInRoom(game_room* t_room,int sd,char* room);
-void delete_room(game_room* head, game_room* room_to_delete);
+int delete_room(game_room** head, game_room* room_to_delete);
 void print_rooms(game_room* head);
 
 location* getLocation(game_room* head, int room_id, char* t_loc);
 item* removeLocationItem(int room_id, char* t_loc, char* it_name);
+item* findInvItem(int sd, char* it_name);
 item* findItem(int room_id,char* t_loc, char* it_name);
 int insertLocationItem(int room_id, item* itm);
+int sendRoomMessage(int room_id,char* buff);
+int sendRoomWinMessage(int room_id);
 
 game_room* findRoomById(game_room* head, int id);
 game_room* findRoomByMap(game_room* head, char* map);

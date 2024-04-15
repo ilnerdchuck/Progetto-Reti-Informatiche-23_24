@@ -12,9 +12,12 @@ void activeRooms();
 int startRoom(int sd, char* room);
 
 int findAsset(int sd, char* asset, char** rsp);
-int takeItem(int sd, char* itm);
+int takeItem(int sd, char* itm, char** rsp);
+int checkRiddle(int sd, char* answer, char** rsp);
 int retInventory(int sd, char** rsp);
 int dropItem(int sd, char* itm);
+int dropRoomGamer(int sd);
+int polymerization(int sd, char* obj_src, char* obj_dst, char** rsp);
 int dropGamer(int sd);
 
 int setGamerLocation(int sd, char* loc, char** rsp);

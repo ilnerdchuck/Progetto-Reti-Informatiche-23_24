@@ -2,6 +2,11 @@
 #include "./../repo/repo.h"
 #include "./../string/string.h"
 #include "reception.h"
+#include "./../network/network.h"
+
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -45,6 +50,56 @@ int createRoom(game_room** head_room, char* map, int time) {
     return 0;
 }
 
+int sendRoomMessage(int room_id, char* buff){
+    message msg = {0};
+    message rsp = {0};
+    msg.msgtype = MSG_TEXT;
+    strmalloc(&msg.field, buff);
+    
+    for(gamer* tmp_gamer = gamer_list; tmp_gamer; tmp_gamer = tmp_gamer->next_gamer){
+        if (tmp_gamer->room_id == room_id) {
+            client* cc = new_client("127.0.0.1", tmp_gamer->port);
+            int err = 0;
+            
+            err = request(cc, msg, &rsp);
+            
+            if(rsp.msgtype != MSG_SUCCESS){
+                return -1;
+            }
+        }
+    }
+ 
+    return 0;
+}
+
+
+int sendRoomWinMessage(int room_id){
+    message msg = {0};
+    message rsp = {0};
+    msg.msgtype = MSG_TEXT;
+    msg.cmdtype = CMD_WIN;
+    strmalloc(&msg.field, "I giocatori hanno vinto!");
+    
+    int err = 0;
+    for(gamer* tmp_gamer = gamer_list; tmp_gamer; tmp_gamer = tmp_gamer->next_gamer){
+        if (tmp_gamer->room_id == room_id) {
+            client* cc = new_client("127.0.0.1", tmp_gamer->port);
+            
+            err = request(cc, msg, &rsp);
+            
+            if(rsp.msgtype != MSG_SUCCESS){
+                return -1;
+            }
+            
+            err = dropRoomGamer(tmp_gamer->sd);
+            if(err != 0){
+                return -1;
+            }
+        }
+    }
+    return 0;
+}
+
 int insertGamerInRoom(game_room* head, int sd, char* room){
     game_room* res = findRoomByMap(head, room);
     if(res == NULL){
@@ -78,6 +133,21 @@ location* getLocation(game_room* head, int room_id, char* t_loc){
     }
     return NULL;
 }
+
+item* findInvItem(int sd, char* it_name){
+    gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+    if (t_gamer == NULL) {
+        return NULL;
+    }
+    
+    for (item* t_item = t_gamer->inventory; t_item; t_item = t_item->next_item) {
+        if(!strcmp(t_item->name, it_name)){
+            return t_item;
+        }
+    }
+    return NULL;
+}
+
 
 item* findItem(int room_id, char* t_loc, char* it_name){
     location* t_location = getLocation(room_list, room_id, t_loc);
@@ -142,34 +212,46 @@ item* removeLocationItem(int room_id, char* t_loc, char* it_name){
 }
 
 // Function to delete a room from the list
-void delete_room(game_room* head, game_room* room_to_delete) {
-    if (head == NULL) {
-        return;
+int delete_room(game_room** head, game_room* room_to_delete) {
+    if (*head == NULL) {
+        return -1;
     }
     
-    if (head == room_to_delete) {
-        head = head->next_room;
+    if (*head == room_to_delete) {
+        *head = room_to_delete->next_room;
         free(room_to_delete);
-        return;
+        return 0;
     }
 
-    game_room* temp = head;
+    game_room* temp = *head;
     while (temp->next_room != NULL && temp->next_room != room_to_delete) {
         temp = temp->next_room;
     }
     
     if (temp->next_room == NULL) {
-        return;
+        return -1;
     }
+  
     temp->next_room = temp->next_room->next_room;
     free(room_to_delete);
+    return 0;
 }
 
 // Function to print the details of all rooms
 void print_rooms(game_room* head) {
+    system("clear");
+    
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+    int width = w.ws_col;
     game_room* temp = head;
     while (temp != NULL) {
-        printf("RoomId:vieni  %d Map: %s Time:%d Tk:%d gamers:%d\n",
+        for(int i = 0; i < width; i++) {
+            printf("-");
+        }
+        printf("\n"); 
+        printf("RoomId:%d Map: %s Time:%d Tk:%d gamers:%d\n",
                 temp->id,
                 temp->room_map,
                 temp->time_remaining,
@@ -177,6 +259,10 @@ void print_rooms(game_room* head) {
                 temp->current_gamers
                );
         for(location* t_loc = temp->locations; t_loc; t_loc = t_loc->next_location){
+            for(int i = 0; i < width; i++) {
+                printf("*");
+            }
+            printf("\n"); 
             printf("loc: %s desc: %s\n",t_loc->name,t_loc->desc_location);
 
             for(item* t_item = t_loc->items; t_item; t_item = t_item->next_item){
@@ -191,9 +277,15 @@ void print_rooms(game_room* head) {
                    t_item->desc_unlocked
                    );
             }
+            printf("\n");
         }
         temp = temp->next_room;
+        for(int i = 0; i < width; i++) {
+            printf("-");
+        }
+        printf("\n");   
     }
+
 }
 // Function to find a room by map
 game_room* findRoomByMap(game_room* head, char* map) {

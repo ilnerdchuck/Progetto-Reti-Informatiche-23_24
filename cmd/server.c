@@ -167,9 +167,37 @@ static int response_function(int sd, const message msg, message *rsp) {
             goto cmdSuccess; 
         }
         if(msg.cmdtype == CMD_TAKE){
-            err = takeItem(sd, msg.field);
+            err = takeItem(sd, msg.field, &rsp->field);
+            if (err == 1) {
+                rsp->msgtype = MSG_SUCCESS;
+                rsp->cmdtype = CMD_ANSWER;
+                return 0;
+            }
+            if (err == 2) {
+                goto cmdSuccess;
+            }
             if(err != 0){
               strmalloc(&rsp->field, "Errore nel prendere l'oggetto");
+              goto cmdError;
+            }
+            goto cmdSuccess;
+        }
+        if(msg.cmdtype == CMD_USE){
+            char* obj_src = malloc(100);
+            char* obj_dst = malloc(100);
+            sscanf(msg.field, "%s %s", obj_src, obj_dst);
+            int err = polymerization(sd, obj_src, obj_dst, &rsp->field);
+            if(err != 0){
+              strmalloc(&rsp->field, "Errore di listaggio delle room");
+              goto cmdError;
+            }
+            goto cmdSuccess;
+        }       
+  
+        if(msg.cmdtype == CMD_ANSWER){
+            int err = checkRiddle(sd, msg.field, &rsp->field);
+            if(err != 0){
+              strmalloc(&rsp->field, "Errore di listaggio delle room");
               goto cmdError;
             }
             goto cmdSuccess;
