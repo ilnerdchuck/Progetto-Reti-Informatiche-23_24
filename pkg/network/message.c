@@ -28,7 +28,8 @@ int msg_deserialize(const char* buff, message *msg){
     return 0;
 }
 
-// _send sends the msg into the sd, returns err != 0 on error
+// _send sends the msg into the sd sending the msg lenght after it has
+// been serialized, returns err != 0 on error
 int _send(int sd, const message msg) {
     char * payload = NULL; 
     int err = msg_serialize(msg, &payload);
@@ -72,7 +73,8 @@ error:
     return -1;
 }
 
-// _receive reveive the msg from the sd, returns err != 0 on error
+// _receive reveive the buffer from the sd and then serialize into
+// a message, returns err != 0 on error
 int _receive(int sd, message* msg) {
     uint32_t rcv_len = 0;
     int res = recv(sd, &rcv_len, sizeof(uint32_t), 0);

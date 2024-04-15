@@ -19,12 +19,10 @@ game_room* room_list = NULL;
 
 
 
-static void accept_function(int sd) {
+static void accept_function(int sd) {}
 
-}
-
+//Callback for handling server stdin input, returns != 0 on error
 static void input_function(int sd, const char* inputText) {
-    //int err = 0;
     if(!esroom_open){
         if(!strcmp(inputText, "start")){
             esroom_open = 1;
@@ -62,6 +60,7 @@ static void input_function(int sd, const char* inputText) {
     return;
 }
 
+//Callback for handling client messages request, returns != 0 on error
 static int response_function(int sd, const message msg, message *rsp) {
     if(esroom_open == 0){ 
         strmalloc(&rsp->field,"closed");
@@ -86,8 +85,8 @@ static int response_function(int sd, const message msg, message *rsp) {
             //Gamer login
             err = loginGamer(sd, usr, pwd, c_s_port);
             if (err != 0) {
-                printf("errore login nella signup\n");
-                strmalloc(&rsp->field, "Errore di login");
+                printf("Errore login: credenziali non valide\n");
+                strmalloc(&rsp->field, "Errore di login: credenziali non valide");
                 goto cmdError;
             }
             
@@ -161,7 +160,7 @@ static int response_function(int sd, const message msg, message *rsp) {
         if(msg.cmdtype == CMD_LOOK){
             err = findAsset(sd, msg.field, &rsp->field);
             if(err != 0){
-              strmalloc(&rsp->field, "Errore di listaggio delle room");
+              strmalloc(&rsp->field, "Errore di ");
               goto cmdError;
             }
             goto cmdSuccess; 
@@ -188,7 +187,7 @@ static int response_function(int sd, const message msg, message *rsp) {
             sscanf(msg.field, "%s %s", obj_src, obj_dst);
             int err = polymerization(sd, obj_src, obj_dst, &rsp->field);
             if(err != 0){
-              strmalloc(&rsp->field, "Errore di listaggio delle room");
+              strmalloc(&rsp->field, "Errore nel comando use");
               goto cmdError;
             }
             goto cmdSuccess;
@@ -197,7 +196,7 @@ static int response_function(int sd, const message msg, message *rsp) {
         if(msg.cmdtype == CMD_ANSWER){
             int err = checkRiddle(sd, msg.field, &rsp->field);
             if(err != 0){
-              strmalloc(&rsp->field, "Errore di listaggio delle room");
+              strmalloc(&rsp->field, "Errore nel comando Answer");
               goto cmdError;
             }
             goto cmdSuccess;
@@ -206,7 +205,7 @@ static int response_function(int sd, const message msg, message *rsp) {
         if(msg.cmdtype == CMD_OBJS){
             int err = retInventory(sd, &rsp->field);
             if(err != 0){
-              strmalloc(&rsp->field, "Errore di listaggio delle room");
+              strmalloc(&rsp->field, "Errore di inventario");
               goto cmdError;
             }
             goto cmdSuccess;
@@ -214,7 +213,7 @@ static int response_function(int sd, const message msg, message *rsp) {
         if(msg.cmdtype == CMD_DROP){
             int err = dropItem(sd, msg.field);
             if(err != 0){
-              strmalloc(&rsp->field, "Errore di listaggio delle room");
+              strmalloc(&rsp->field, "Errore di rilascio oggetto");
               goto cmdError;
             }
             goto cmdSuccess;
@@ -227,6 +226,7 @@ bad_request:
     rsp->field = NULL; 
     return 0;
 
+//On command cmd success send SUCCESS and the associated CMD
 cmdSuccess:
     rsp->msgtype = MSG_SUCCESS;
     rsp->cmdtype = msg.cmdtype;
@@ -238,6 +238,7 @@ cmdError:
     return 0;
 }   
 
+//Callback to handle a client disconnencting
 static void disconnect_function(int sd) {
     dropGamer(sd);
 }
@@ -247,18 +248,18 @@ static void disconnect_function(int sd) {
 int main(int argc, char* argv[]){
 
     system("clear");
-
+    //Server creation and bind
     s = new_server(accept_function, input_function, response_function, disconnect_function);
     
+    //bind server on a free port and log it, done to avoid unix socket flushing 
     uint32_t port = 2500;
     while (bind_server(s, port) == -1) {
         port++;
     }
-    
-    printFile("./menus/serverCommands.txt");
-
     log_port("./port.txt", port);
     
+    //Print commands and start listening
+    printFile("./menus/serverCommands.txt");
     listen_server(s);
     
     system("> port.txt");

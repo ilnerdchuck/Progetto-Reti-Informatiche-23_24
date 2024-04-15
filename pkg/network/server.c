@@ -17,6 +17,7 @@
 
 #include "network.h"
 
+//Init server struct
 server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r, DisconnectFunction d) {
     // TODO: check that functions are not null
     server* s = malloc(sizeof(server));
@@ -40,6 +41,7 @@ error:
     return NULL;
 }
 
+
 int bind_server(server* s, int port) {
     struct sockaddr_in address = {0};
     address.sin_family = AF_INET;
@@ -49,6 +51,7 @@ int bind_server(server* s, int port) {
     return bind(s->listener, (struct sockaddr*)&address, sizeof(address));
 } 
 
+//sets a server in listening mode, returns != 0 on error
 int listen_server(server* s) {
     fd_set master, read_fds;
 
@@ -74,7 +77,8 @@ int listen_server(server* s) {
             
             int err = 0;
             message msg;
-            
+
+            //Handle STDIN buffer            
             if (fd == STDIN_FILENO) {
                 char* buff = NULL;
                 size_t len = 1024;
@@ -88,10 +92,12 @@ int listen_server(server* s) {
                 buff[len-1] = '\0';
 
                 s->i(STDIN_FILENO, buff);
+
                 free(buff);
                 continue;
             }
-            // add a connection in case the full sd is the listener
+
+            //Add a connection in case the sd is the listener
             if (fd == s->listener) {
                 struct sockaddr_in cl_addr;
                 uint32_t addrlen = sizeof(cl_addr);
@@ -105,23 +111,21 @@ int listen_server(server* s) {
                 if (newsd > fdmax) {
                     fdmax = newsd;
                 }
-                // call accept callback
+
+                //Call accept callback
                 s->a(fd);
                 continue;
             }
 
-            // in case of a message call the receive
+            //In case of a message call the receive
             err = _receive(fd, &msg);
 
-            // in case of an error close the socket
-            
+            //In case of an error close the socket
             if (err == -1) goto error;
             
-            // call the message callback
+            //Call the message callback
             message rsp = {0};
-            
             err = s->r(fd, msg, &rsp);
-            
             if (err == -1) goto error;
             
             err = _send(fd, rsp);
@@ -133,15 +137,13 @@ int listen_server(server* s) {
             msg.field = NULL;
 
             if (err == -1) goto error;
-            
 
             continue;
 error:
             FD_CLR(fd, &master);
             close(fd);
-            
+            //Call disconnect callback
             s->d(fd);
-
             continue;
         }
     }
@@ -153,5 +155,5 @@ void stop_server(server* s){
 }
 
 void delete_server(server* s) {
-    //@TODO delete
+    //@TODO: Add delete server
 }

@@ -9,9 +9,9 @@
 #define CHUNK_SIZE 1024
 
 typedef struct{
-  int msgtype;
-  int cmdtype;
-  char *field;
+  int msgtype; //Define the type of message sent
+  int cmdtype; //Used if msgtype is MSG_COMMAND to handle different commands
+  char *field; //Used to write the effetive message 
 } message;
 
 //------CLIENT-------//
@@ -20,7 +20,7 @@ typedef struct {
   char* server_ip;
   size_t server_port;
   size_t client_port;
-  int connected;
+  int connected; //Used to mark if a client is connected with a connect()
 } client;
 
 client* new_client(const char* server_ip, const size_t server_port);
@@ -34,12 +34,12 @@ typedef void (*DisconnectFunction)(int sd);
 
 //------SERVER-------//
 struct server {
-    int listener;
-    int run; 
-    AcceptFunction a;
-    InputFunction i;
-    ResponseFunction r;
-    DisconnectFunction d;    
+    int listener; //Stores the listener socket
+    int run; //Handles the listen_server cycle to start/stop it
+    AcceptFunction a; //Callback to handle function/istruction when accept() is called
+    InputFunction i; //Callback to handle stdin stream input
+    ResponseFunction r; //Callback to handle response to a receive o f a message
+    DisconnectFunction d; //Callback to handle a disconnect on a socket
 } typedef server;
 
 server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r, DisconnectFunction d);

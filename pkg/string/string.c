@@ -2,21 +2,19 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
-
+//Deserialize a string to retrieve user password and port
 int get_usr_pwd_port(const char* buff, char* usr, char* pwd, int* cs_port){
-    
     sscanf(buff, "%s %s %d", usr, pwd, cs_port);
     return 0; 
 }
 
+//Allocates the dst string based on the src string and 
+//copies its contents
 int strmalloc(char** dst, const char* src) {
     if(!src){
         return -1;
     }
     *dst = malloc(strlen(src)+1);
-    // while (*src)
-    //     *dst++ = *src++;
-    // *dst = '\0';
     strcpy(*dst, src);
     return 0;
 }

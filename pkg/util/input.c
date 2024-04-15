@@ -14,6 +14,7 @@ int read_stdin_line(char** buff){
   return 0;
 }
 
+//Helper function to print a file 
 int printFile(const char* path){
   FILE* crd_file;
   char tmp_line[2048] = {0};
@@ -34,7 +35,7 @@ int printFile(const char* path){
   return 0; 
 }
 
-//reads an integer form a file and returns it
+//Reads an integer form a file and returns it
 int read_port(const char* path){
   FILE* crd_file;
   char tmp_line[1024] = {0};

@@ -13,6 +13,7 @@
 
 #define N_LOCATIONS 4
 
+//Function to write the port to a file
 int log_port(const char * path, const int port){
   FILE* p_file;
   system("> ./port.txt ");
@@ -31,7 +32,7 @@ int log_port(const char * path, const int port){
 
 //------------Room Handling---------------
 
-//@TODO: review handling 
+//Gets all avalible folders to list all maps
 int getAvalibleRooms(char **room_list){
     
     system("/bin/ls ./room_template | cut -f1  > ./tmp.txt");
@@ -63,9 +64,8 @@ int getAvalibleRooms(char **room_list){
   
 }
 
-
+//Head insert of a new location in the room location list
 int insertLocation(location** locations, const char* name, const char* desc){
-    //inserimento in testa non mi interessa l'ordine
     location* new_location = (location*)malloc(sizeof(location));
     new_location->name = NULL;
     strmalloc(&new_location->name, name);
@@ -74,7 +74,6 @@ int insertLocation(location** locations, const char* name, const char* desc){
     new_location->items = NULL;
     new_location->next_location = NULL;
     
-    //@TODO: add error handling (mostly null strings)
     if(!(*locations)){
         *locations = new_location;
         return 0;
@@ -86,7 +85,8 @@ int insertLocation(location** locations, const char* name, const char* desc){
     return 0;
 }
 
-//inserisco in testa poiché la location in testa sará sempre quella corrente
+//Head insert of an item in the current room location pointed 
+//by room->locations
 int insertIteminLocation(location* locations, 
                const char* item_name,
                itemType item_type,
@@ -100,7 +100,6 @@ int insertIteminLocation(location* locations,
         return -1;
     }  
 
-    //inserimento in testa dell'item nella location
     item* new_item = (item*)malloc(sizeof(item));
     new_item->name = NULL;
     strmalloc(&new_item->name, item_name);
@@ -108,7 +107,6 @@ int insertIteminLocation(location* locations,
     new_item->itemType = item_type;
     new_item->token = item_token;
     
-    //@TODO: add error handling (mostly null strings)
     strmalloc(&new_item->unloked_item, item_unlocked);
     strmalloc(&new_item->answer, item_answer);
     strmalloc(&new_item->success_message, item_succ_mess);
@@ -128,38 +126,9 @@ int insertIteminLocation(location* locations,
     return 0;
 }
 
-
+//Gets all location files for a map and adds all items 
 int getLocations(const char* map, location** locations, int* tokens){
     
-    // char* command = malloc(4096);
-    // 
-    // strcat(command, "/bin.ls ./room_template/");
-    // strcat(command, map);
-    // strcat(command," | cut -f1 > tmp.txt");
-    //
-    // system(command);
-    // 
-    // char buf[4096] = {0};
-    // FILE* fp;
-    //
-    // fp = fopen("tmp.txt", "r");
-    // if (fp == NULL) {
-    //     printf("Error opening pipe!\n");
-    //     return -1;
-    // }
-    // 
-    // int n_maps = 0;
-    // while (fgets(buf, sizeof(buf), fp) != NULL) {
-    //       n_maps++;
-    // }
-    //
-    // if (fclose(fp)) {
-    //     printf("Command not found or exited with error status\n");
-    //     system("rm ./tmp.txt");
-    //     return -1;
-    // }   
-    // 
-
     struct dirent **namelist;
     int n;
     char* path = malloc(1024);
@@ -182,8 +151,6 @@ int getLocations(const char* map, location** locations, int* tokens){
 
         char tmp_line[4096] = {0};
         if(fgets(tmp_line, sizeof(tmp_line), fp) != NULL){
-            //inserimento nuova location
-            // con descrizione in tmp tmp_line
             insertLocation(locations,namelist[i]->d_name,tmp_line);
         }else {
             continue;
@@ -200,8 +167,6 @@ int getLocations(const char* map, location** locations, int* tokens){
             char item_descl[300] = {0};
             char item_descu[300] = {0};
             
-                  
-            //aggiunge l'item alla location corrente 
             sscanf(tmp_line,"%[^_]_%d_%d_%[^_]_%[^_]_%[^_]_%[^_]_%[^_]",
                    item_name,
                    (int*)&item_type,

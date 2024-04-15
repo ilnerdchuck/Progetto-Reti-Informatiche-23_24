@@ -13,6 +13,7 @@
 // SERVER BUSINESS DELLA ROOM 
 //------------------------Rooms----------------------
 
+//List currently loaded and avalible rooms, returns != 0 on error 
 int avalibleRooms(char** aval_rooms){
     int err = getAvalibleRooms(aval_rooms);
     if(err != 0){
@@ -21,6 +22,7 @@ int avalibleRooms(char** aval_rooms){
     return 0;
 }
 
+//Checks for room availability and starts a new one if not already started, returns != 0 on error 
 int startRoom(int sd, char* room){
     int err = 0;
     char* aval_rooms = NULL;
@@ -48,15 +50,16 @@ int startRoom(int sd, char* room){
     return 0;
 }
 
-//Adds a point and check game status
+//Adds a point and check game status, returns != 0 on error
 int pointaddHandler(int room_id){
-    //remove a token 
+    //remove a token from the room
     game_room* t_room = findRoomById(room_list, room_id);
     if(t_room == NULL){
         return -1;
     }
     t_room->tokens--;
-    //check if the game is won
+    //If the game is won broadcast victory message 
+    //and remove gamers from the room, and delete the room
     if(!t_room->tokens){
         int err = sendRoomWinMessage(room_id);
         if(err != 0){
@@ -69,7 +72,7 @@ int pointaddHandler(int room_id){
     }
     return 0;
     }
-
+//Returns gamer inventory, return != 0 on error 
 int retInventory(int sd, char** rsp){
     char* buff = malloc(4096);
     memset(buff, 0, 4096);
@@ -86,9 +89,11 @@ int retInventory(int sd, char** rsp){
         strcat(buff, "\n"); 
     }
     strmalloc(rsp, buff);
+    free(buff);
     return 0;
 }
 
+//Push and item in the gamer inventory list
 int insertGamerItem(item** itm_list, item* itm){
     if(*itm_list == NULL){
         *itm_list = itm;
@@ -99,7 +104,8 @@ int insertGamerItem(item** itm_list, item* itm){
     return 0;
 }
 
-//rimuove l'oggetto item dall'inventario dell'utente e lo rimette nella location giusta 
+//Remove an t_item from the gamer inventory and moves it 
+//in the location where it was taken
 int dropItem(int sd, char* t_item){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     if (t_gamer == NULL) {
@@ -109,7 +115,7 @@ int dropItem(int sd, char* t_item){
     item* n_item = t_gamer->inventory;
     item* target = NULL;
     
-    //rimozione testa 
+    //Head inventory removal
     if(!strcmp(n_item->name, t_item)){
         target = n_item;
         t_gamer->inventory = n_item->next_item; 
@@ -118,7 +124,7 @@ int dropItem(int sd, char* t_item){
         return 0;
     }
     
-    //rimozione nel mezzo o coda
+    //Inventory removal
     while(n_item && n_item->next_item){
         if(!strcmp(n_item->next_item->name, t_item)){
             break;     
@@ -133,9 +139,10 @@ int dropItem(int sd, char* t_item){
     return 0;
 }
 
-
-
-
+//Takes an item from the current gamer location and moves 
+//in the gamer inventory, checks if it's a pickable item
+//returns 1 if it's a riddle locked item or 2 on a puzzle 
+//!=0 if there is an error
 int takeItem(int sd, char* t_item, char** rsp){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     if(t_gamer == NULL){
@@ -166,13 +173,14 @@ int takeItem(int sd, char* t_item, char** rsp){
     if (res->token) {
       pointaddHandler(t_gamer->room_id);
     } 
-    //inserimento nella lista degli item del gamer
     insertGamerItem(&t_gamer->inventory,res);
     t_gamer->items_held++;
     return 0;
  
 }
 
+//Handles riddle check and moves item in the gamer inventory, 
+//returns != 0 on error
 int checkRiddle(int sd, char* buff, char **rsp){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     if(t_gamer == NULL){
@@ -205,13 +213,12 @@ int checkRiddle(int sd, char* buff, char **rsp){
         }
         strmalloc(rsp, "Risposta errata");
         return -1;
-    
     }
     return -1; 
 }
 
-
-
+//Handles the use of an obj on another, on success adds the item
+//in the gamer inventory, returns != 0 on error
 int polymerization(int sd, char* obj_src, char* obj_dst, char** rsp){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     if (t_gamer == NULL) {
@@ -254,7 +261,10 @@ int polymerization(int sd, char* obj_src, char* obj_dst, char** rsp){
 
     return 0;
 }
+
 //------------------------Gamers----------------------
+//I have to findGamer functions the first one is more testable
+//the second one i wrote for ease of use
 int findGamer(int sd, gamer** target){
     for (gamer* tmp = gamer_list; tmp; tmp = tmp->next_gamer) {
          if(tmp->sd == sd){
@@ -264,8 +274,17 @@ int findGamer(int sd, gamer** target){
     } 
     return -1;
 }
+gamer* findLoggedGamer(gamer* head, int sd){
+    for (gamer* tmp = head; tmp; tmp = tmp->next_gamer) {
+         if(tmp->sd == sd){
+            return tmp;
+        }
+    } 
+    return NULL;
+}
 
-// Function to create a new gamer
+
+//Function to create a new gamer, returns != 0 on error
 int newGamer(gamer** head, const int sd, const char* username, const int cs_port) {
     gamer* tmp = (gamer*)malloc(sizeof(gamer));
     tmp->sd = sd;
@@ -301,7 +320,7 @@ int newGamer(gamer** head, const int sd, const char* username, const int cs_port
     return 0;
 } 
 
-// Function to delete a gamer
+// Function to delete a gamer, return != 0 on error
 int deleteGamer(gamer** head, const int sd) {
     gamer* prev = NULL;
     gamer* next = *head;
@@ -324,15 +343,7 @@ int deleteGamer(gamer** head, const int sd) {
     return 0;
 }
 
-gamer* findLoggedGamer(gamer* head, int sd){
-    for (gamer* tmp = head; tmp; tmp = tmp->next_gamer) {
-         if(tmp->sd == sd){
-            return tmp;
-        }
-    } 
-    return NULL;
-}
-
+//Finds a gamer and changes it's location, returns != 0 on error
 int setGamerLocation(int sd, char* loc, char** rsp){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     if(!t_gamer){
@@ -348,14 +359,16 @@ int setGamerLocation(int sd, char* loc, char** rsp){
     return 0;
 }
 
+//Finds an Asset (location or item) and write it's description in the response
+//returns != 0 on error
 int findAsset(int sd, char* asset, char** rsp){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     if(t_gamer == NULL){
         return -1;
     }
     item* res = findItem(t_gamer->room_id,t_gamer->curr_location, asset);   
+    //If the item is NULL we find a Location
     if(res == NULL){
-        //item non trovato cerco tra le location
         int err = setGamerLocation(sd, asset, rsp);
         if(err != 0){
             return -1;
@@ -366,6 +379,7 @@ int findAsset(int sd, char* asset, char** rsp){
     return 0;
 } 
 
+//Function to print a gamer status
 int printGamer(gamer* head, int sd){
     gamer* tmp_gamer = NULL;
     int err = findGamer(sd, &tmp_gamer);
@@ -377,6 +391,7 @@ int printGamer(gamer* head, int sd){
     return 0;
 }
 
+//Function to print all gamer status
 void printGamers(gamer *head){
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
@@ -397,7 +412,7 @@ void printGamers(gamer *head){
     printf("\n");
 }
 
-// Check if user is registered and add the gamer to the reception
+//Check if user is registered and add the gamer to the reception
 int loginGamer(const int sd, const char* usr, const char* pwd, const int cs_port){
   if(get_user(REPO_PATH, usr, pwd) != 0){
     return -1;
@@ -415,7 +430,7 @@ int loginGamer(const int sd, const char* usr, const char* pwd, const int cs_port
   return 0;
 };
 
-
+//SignUp a gamer 
 int signupGamer(const char* usr, const char* pwd){
   //leggere da file e confrontare con utente e password
   if (get_user(REPO_PATH, usr, pwd) == 0) {
@@ -424,6 +439,8 @@ int signupGamer(const char* usr, const char* pwd){
   return create_user(REPO_PATH, usr, pwd);
 };
 
+//Removes a gamer from a room and dropping it's inventory, 
+//returns != 0 on erorr
 int dropRoomGamer(int sd){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     if (t_gamer == NULL) {
@@ -449,7 +466,7 @@ int dropRoomGamer(int sd){
 }
 
 
-
+//Removes a gamer form the system, returns !=0 on error
 int dropGamer(int sd){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     if (t_gamer == NULL) {

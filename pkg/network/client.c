@@ -13,6 +13,7 @@
 
 #include "network.h"
 
+//Initialize the client struct
 client *new_client(const char *server_ip, const size_t server_port) {
   client *c = malloc(sizeof(client));
 
@@ -34,6 +35,7 @@ error:
     return NULL;
 }
 
+//Cleans a client struct
 void delete_client(client *c) {
     if (c == NULL) {
         return;
@@ -48,6 +50,7 @@ void delete_client(client *c) {
     return;
 }
 
+//Connect the client
 int client_connect(client *c) {
     if (c->connected) return 0;
 
@@ -85,6 +88,8 @@ int client_connect(client *c) {
     return -1;
 }
 
+//Request a exchange: check the connection and then sends a message
+//then waits for a response
 int request(client *c, const message payload, message* rsp) {
 
     int err = client_connect(c);

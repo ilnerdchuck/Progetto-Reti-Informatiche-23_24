@@ -1,6 +1,6 @@
 #pragma once
 
-//------IO-------//
+//Message types
 enum msgType{
   MSG_COMMAND,
   MSG_SUCCESS,
@@ -9,6 +9,7 @@ enum msgType{
   MSG_BAD_REQUEST,
 };
 
+//Command types
 enum cmdType{
   CMD_LOGIN,
   CMD_SIGNUP,

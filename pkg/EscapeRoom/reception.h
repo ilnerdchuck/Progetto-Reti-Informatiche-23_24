@@ -2,7 +2,7 @@
 
 #include "room.h"
 
-extern gamer* gamer_list;
+extern gamer* gamer_list; //Variable to store all logged/gaming clients
 
 int loginGamer(const int sd, const char* usr, const char* pwd, const int cs_port);
 int signupGamer(const char* usr, const char* pwd);

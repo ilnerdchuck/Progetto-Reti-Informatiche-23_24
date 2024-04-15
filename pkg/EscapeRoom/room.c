@@ -10,8 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Function to create a new game room an add to the room list
-
+// Function to create a new game room an add to the room_list,
+// returns != 0 on error
 int createRoom(game_room** head_room, char* map, int time) {
     game_room* new_room = (game_room*)malloc(sizeof(game_room));
     new_room->id = 0;
@@ -50,6 +50,8 @@ int createRoom(game_room** head_room, char* map, int time) {
     return 0;
 }
 
+//Sends a bradcast message to all gamers in the room, 
+//returns != 0 on error
 int sendRoomMessage(int room_id, char* buff){
     message msg = {0};
     message rsp = {0};
@@ -72,7 +74,8 @@ int sendRoomMessage(int room_id, char* buff){
     return 0;
 }
 
-
+//Sends victory message to all gamers in the room, 
+//returns != 0 on error
 int sendRoomWinMessage(int room_id){
     message msg = {0};
     message rsp = {0};
@@ -100,6 +103,8 @@ int sendRoomWinMessage(int room_id){
     return 0;
 }
 
+//Inserts a gamer in a room and sets it's default location
+//returns != 0 on error
 int insertGamerInRoom(game_room* head, int sd, char* room){
     game_room* res = findRoomByMap(head, room);
     if(res == NULL){
@@ -120,7 +125,8 @@ int insertGamerInRoom(game_room* head, int sd, char* room){
 
 
 
-//trova e stampa la location
+//Returs the given location in a room,
+//returns NULL on location not found
 location* getLocation(game_room* head, int room_id, char* t_loc){
     game_room* res = findRoomById(head, room_id);
     if(res == NULL){
@@ -134,6 +140,8 @@ location* getLocation(game_room* head, int room_id, char* t_loc){
     return NULL;
 }
 
+//Finds an item in a gamer inventory and returns it,
+//returns NULL on item not found
 item* findInvItem(int sd, char* it_name){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     if (t_gamer == NULL) {
@@ -148,7 +156,8 @@ item* findInvItem(int sd, char* it_name){
     return NULL;
 }
 
-
+//Finds an item in a given room location, returns NULL
+//on item not found
 item* findItem(int room_id, char* t_loc, char* it_name){
     location* t_location = getLocation(room_list, room_id, t_loc);
     if (t_location == NULL) {
@@ -163,6 +172,8 @@ item* findItem(int room_id, char* t_loc, char* it_name){
     return NULL;
 }
 
+//Insert a given item in it's loaded location,
+//returns != 0 on error
 int insertLocationItem(int room_id, item* itm){
     location* t_location = getLocation(room_list, room_id, itm->location);
     if (t_location == NULL) {
@@ -181,16 +192,17 @@ int insertLocationItem(int room_id, item* itm){
 }
 
 
-
+//Removes a given item from a given location and returns it, 
+//return != 0 on error
 item* removeLocationItem(int room_id, char* t_loc, char* it_name){
     location* t_location = getLocation(room_list, room_id, t_loc);
     if (t_location == NULL) {
         return NULL;
     }
-
+    
+    //List removal handling
     item* n_item = t_location->items;
     item* target = NULL;
-    //rimozione testa 
     if(!strcmp(n_item->name, it_name)){
         target = n_item;
         t_location->items = n_item->next_item; 
@@ -198,7 +210,6 @@ item* removeLocationItem(int room_id, char* t_loc, char* it_name){
         return target;
     }
     
-    //rimozione nel mezzo o coda
     while(n_item && n_item->next_item){
         if(!strcmp(n_item->next_item->name, it_name)){
             break;     
@@ -211,7 +222,7 @@ item* removeLocationItem(int room_id, char* t_loc, char* it_name){
     return target;
 }
 
-// Function to delete a room from the list
+//Function to delete a room from the list
 int delete_room(game_room** head, game_room* room_to_delete) {
     if (*head == NULL) {
         return -1;
@@ -237,7 +248,7 @@ int delete_room(game_room** head, game_room* room_to_delete) {
     return 0;
 }
 
-// Function to print the details of all rooms
+//Function to print the details of all rooms
 void print_rooms(game_room* head) {
     system("clear");
     
@@ -287,7 +298,7 @@ void print_rooms(game_room* head) {
     }
 
 }
-// Function to find a room by map
+//Function to find a room by map name
 game_room* findRoomByMap(game_room* head, char* map) {
     game_room* temp = head;
     while (temp != NULL) {
@@ -298,7 +309,8 @@ game_room* findRoomByMap(game_room* head, char* map) {
     }
     return NULL;
 }
-// Function to find a room by map
+
+//Function to find a room by map Id
 game_room* findRoomById(game_room* head, int id) {
     game_room* temp = head;
     while (temp != NULL) {

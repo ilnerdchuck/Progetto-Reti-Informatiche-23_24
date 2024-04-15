@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+//Gets user and password from a file 
 int get_user(const char * path, const char* usr, const char* pwd){
   FILE* crd_file;
   char tmp_line[4096] = {0};
@@ -26,9 +27,8 @@ int get_user(const char * path, const char* usr, const char* pwd){
   return -1;
 };
 
-
+//Writes the user to the credentials file 
 int create_user(const char * path, const char* usr, const char* pwd){
-  //scrivi l'untente nel file
   FILE* crd_file;
   
   crd_file = fopen(path, "a");

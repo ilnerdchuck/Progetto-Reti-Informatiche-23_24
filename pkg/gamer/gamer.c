@@ -10,8 +10,10 @@
 
 // Gamer logic
 
-//-----------------Rooms-----------------
-
+//-----------------Commands Request-----------------
+//All callbacks send a cmdtype and wait for a MSG_SUCCESS
+//with the same cmdtype or on error it will return a 
+//MSG_ERROR with the corrisponding cmdtype
 int requestRooms(client* c){
       message msg = {0};
       msg.msgtype = MSG_COMMAND;
@@ -124,7 +126,8 @@ int requestTake(client* c, const char* item){
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
           return 0;
       }
-
+      //On take if the item needs a riddle it will answer with a 
+      //CMD_ANSWER
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == CMD_ANSWER){
           printf("%s\n",rsp.field);
           char* buff = NULL;
@@ -195,7 +198,6 @@ int usePolymerization(client* c, char* obj_src,char* obj_dst){
 
       return 0; 
 }
-
 
 int requestDrop(client* c, const char* item){
       message msg = {0};

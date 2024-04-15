@@ -16,6 +16,8 @@ static int client_gaming = 0;
 static uint32_t s_client_port = 7070;
 
 static void accept_function(int sd) {}
+
+//Callback for handling client stdin, returns != 0 on error
 static void input_function(int sd, const char* inputText) {
     int err = 0;
     if(!logged){
@@ -84,6 +86,7 @@ static void input_function(int sd, const char* inputText) {
             goto exit;
         }
     }
+    //Gamer commands while in a room
     if(logged && client_gaming){
         //get command
         char curr_command[30] = {0};
@@ -134,15 +137,17 @@ static void input_function(int sd, const char* inputText) {
         } 
 
         if (!strcmp(curr_command, "end")) {
-
             goto exit;
-        } 
-    }
+        }
+        printf("Comando non disponibile\n");
+     }
     
 exit:
     return;
   
 }
+
+//Callback for handling server messages, returns != 0 on error
 static int response_function(int sd, const message msg, message *rsp) {
     if(msg.msgtype == MSG_TEXT){
         printf("%s\n", msg.field);
@@ -161,20 +166,20 @@ void disconnect_function(int sd) {}
 int main(int argc, char* argv[]){
 
     system("clear");
-    
+    //Read port or wait and then connect to the server 
     int port = read_port("./port.txt");
     while(port == -1){
         port = read_port("./port.txt");
     }
     c = new_client("127.0.0.1", port);
-    s_client = new_server(accept_function, input_function, response_function, disconnect_function);
     
+    //bind a client server on a free port and log it, done to avoid unix socket flushing 
+    s_client = new_server(accept_function, input_function, response_function, disconnect_function);
     while (bind_server(s_client, s_client_port) == -1) {
         s_client_port++;
     } 
-    
+      
     printFile("./menus/initClient.txt");
-
     listen_server(s_client);
 
     return 0;
