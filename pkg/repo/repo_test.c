@@ -27,8 +27,8 @@ int testLogin_response_function(int sd, const message msg, message *rsp) {
         if (msg.cmdtype == CMD_LOGIN) {
             char* usr = malloc(strlen(msg.field)+1);
             char* pwd = malloc(strlen(msg.field)+1);
-
-            err = get_usr_pwd(msg.field, usr, pwd);
+            int port = 0;
+            err = get_usr_pwd_port(msg.field, usr, pwd, &port);
             if(err != 0){
                 rsp->msgtype = MSG_ERROR;
                 return err;             
@@ -44,8 +44,9 @@ int testLogin_response_function(int sd, const message msg, message *rsp) {
         if (msg.cmdtype == CMD_SIGNUP) {
             char* usr = malloc(strlen(msg.field)+1);
             char* pwd = malloc(strlen(msg.field)+1);
-
-            err = get_usr_pwd(msg.field, usr, pwd);
+            int port = 0;
+      
+            err = get_usr_pwd_port(msg.field, usr, pwd, &port);
             if(err != 0){
                 rsp->msgtype = MSG_ERROR;
                 return err;
