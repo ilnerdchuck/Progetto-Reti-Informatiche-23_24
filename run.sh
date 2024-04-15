@@ -5,7 +5,7 @@ make clean
 make build
 read -p "Compilazione eseguita. Premi invio per eseguire..."
 
-gnome-terminal -x sh -c "./build/server; exec bash" -t "SERVER" -geometry 100x30 
+gnome-terminal --geometry=80x30 -x sh -c "setterm -term linux -back blue -fore white; ./build/server; exec bash" -t "SERVER" 
 gnome-terminal -x sh -c "./build/client; exec bash" -t "CLIENT-1"
 gnome-terminal -x sh -c "./build/client; exec bash" -t "CLIENT-2"
 
