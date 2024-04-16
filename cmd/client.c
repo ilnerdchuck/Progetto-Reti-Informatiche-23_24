@@ -1,3 +1,4 @@
+#include <bits/types/struct_timeval.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <pthread.h>
@@ -16,6 +17,7 @@ static int client_gaming = 0;
 static uint32_t s_client_port = 7070;
 
 static void accept_function(int sd) {}
+static void tick_function(struct timeval time) {}
 
 //Callback for handling client stdin, returns != 0 on error
 static void input_function(int sd, const char* inputText) {
@@ -137,6 +139,8 @@ static void input_function(int sd, const char* inputText) {
         } 
 
         if (!strcmp(curr_command, "end")) {
+            //@TODO: handle end command
+            stop_server(s_client);
             goto exit;
         }
         printf("Comando non disponibile\n");
@@ -151,8 +155,7 @@ exit:
 static int response_function(int sd, const message msg, message *rsp) {
     if(msg.msgtype == MSG_TEXT){
         printf("%s\n", msg.field);
-        if(msg.cmdtype == CMD_WIN){
-            printf("win\n");
+        if(msg.cmdtype == CMD_WIN || msg.cmdtype == CMD_LOSS){
             client_gaming = 0;
         }
         rsp->msgtype = MSG_SUCCESS;
@@ -174,13 +177,15 @@ int main(int argc, char* argv[]){
     c = new_client("127.0.0.1", port);
     
     //bind a client server on a free port and log it, done to avoid unix socket flushing 
-    s_client = new_server(accept_function, input_function, response_function, disconnect_function);
+    s_client = new_server(accept_function, input_function, response_function, disconnect_function, tick_function);
     while (bind_server(s_client, s_client_port) == -1) {
         s_client_port++;
     } 
       
     printFile("./menus/initClient.txt");
     listen_server(s_client);
-
+    
+    delete_server(s_client);
+    delete_client(c);
     return 0;
 }

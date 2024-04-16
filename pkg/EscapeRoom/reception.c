@@ -46,18 +46,31 @@ int startRoom(int sd, char* room){
     if(err == -2){
         return err;
     }
+    res = findRoomByMap(room_list, room);
 
+    //@TODO: Fix client hanging on broadcast 
+    //Broadcast that a client has been connected
+    //char* buff = malloc(1024);
+    //sprintf(buff, "%s %s\n", "pippo", "si é connesso alla room");
+    //printf("%d\n", res->id);
+    //sendRoomMessage(res->id, buff);
+ 
     return 0;
 }
 
-//Adds a point and check game status, returns != 0 on error
-int pointaddHandler(int room_id){
+//Adds a point and check game status and broadcast 
+//to the room, returns != 0 on error
+int pointaddHandler(int room_id, char* usr, char* itm){
     //remove a token from the room
     game_room* t_room = findRoomById(room_list, room_id);
     if(t_room == NULL){
         return -1;
     }
     t_room->tokens--;
+    char* buff = malloc(1024);
+    sprintf(buff, "%s %s %s\n", usr, "ha risolto l'indovinello:", itm);
+    sendRoomMessage(room_id,buff);
+    free(buff);
     //If the game is won broadcast victory message 
     //and remove gamers from the room, and delete the room
     if(!t_room->tokens){
@@ -171,7 +184,7 @@ int takeItem(int sd, char* t_item, char** rsp){
         return -1;
     }
     if (res->token) {
-      pointaddHandler(t_gamer->room_id);
+      pointaddHandler(t_gamer->room_id, t_gamer->username, res->name);
     } 
     insertGamerItem(&t_gamer->inventory,res);
     t_gamer->items_held++;
@@ -204,7 +217,7 @@ int checkRiddle(int sd, char* buff, char **rsp){
                 return -1;
             }
             if (res->token) {
-                pointaddHandler(t_gamer->room_id);
+                pointaddHandler(t_gamer->room_id, t_gamer->username, res->name);
             }
             insertGamerItem(&t_gamer->inventory,res);
             t_gamer->items_held++;
@@ -249,7 +262,7 @@ int polymerization(int sd, char* obj_src, char* obj_dst, char** rsp){
             return -1;
         }
         if (dst->token) {
-            pointaddHandler(t_gamer->room_id);
+            pointaddHandler(t_gamer->room_id, t_gamer->username, res->name);
             dst->token = 0;
         }
         insertGamerItem(&t_gamer->inventory,res);

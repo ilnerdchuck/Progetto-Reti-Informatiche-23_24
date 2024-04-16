@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bits/types/struct_timeval.h>
+#include <time.h>
 #include <stddef.h>
 #include "./../protocol/protocol.h"
 #include <stdint.h>
@@ -28,6 +30,7 @@ int request(client* c, const message payload, message* rsp);
 void delete_client(client* c);
 
 typedef void (*AcceptFunction)(int sd);
+typedef void (*TickFunction)(struct timeval time);
 typedef void (*InputFunction)(int sd, const char* inputText);
 typedef int (*ResponseFunction)(int sd, const message msg, message* rsp);
 typedef void (*DisconnectFunction)(int sd);
@@ -37,12 +40,13 @@ struct server {
     int listener; //Stores the listener socket
     int run; //Handles the listen_server cycle to start/stop it
     AcceptFunction a; //Callback to handle function/istruction when accept() is called
+    TickFunction t; //Callback to handle istruction on a tick of the server
     InputFunction i; //Callback to handle stdin stream input
     ResponseFunction r; //Callback to handle response to a receive o f a message
     DisconnectFunction d; //Callback to handle a disconnect on a socket
 } typedef server;
 
-server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r, DisconnectFunction d);
+server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r, DisconnectFunction d, TickFunction t);
 int bind_server(server* s, int port);
 int listen_server(server* s);
 void delete_server(server* s);

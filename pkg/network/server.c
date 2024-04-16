@@ -18,17 +18,19 @@
 #include "network.h"
 
 //Init server struct
-server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r, DisconnectFunction d) {
-    // TODO: check that functions are not null
+server* new_server(AcceptFunction a, InputFunction i, ResponseFunction r, DisconnectFunction d, TickFunction t) {
     server* s = malloc(sizeof(server));
     if (s == NULL) {
         goto error;
     }
-
+    if(!a && !i && !r && !d && !t){
+        goto error;
+    }
     s->a = a;
     s->i = i;
     s->r = r;
     s->d = d;
+    s->t = t;
     
 
     s->listener = socket(AF_INET, SOCK_STREAM, 0);
@@ -71,6 +73,8 @@ int listen_server(server* s) {
 
 	      struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
         select(fdmax + 1, &read_fds, NULL, NULL, &timeout);
+        
+        s->t(timeout);
 
         for (int fd = 0; fd <= fdmax; fd++) {
             if (!FD_ISSET(fd, &read_fds)) continue;

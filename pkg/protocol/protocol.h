@@ -22,5 +22,6 @@ enum cmdType{
   CMD_END,
   CMD_RROOMS,
   CMD_RROOM,
-  CMD_WIN
+  CMD_WIN,
+  CMD_LOSS
 };

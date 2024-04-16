@@ -5,7 +5,7 @@
 
 
 #define MAX_PLAYERS 5
-#define MAX_ROOM_TIME 5000
+#define MAX_ROOM_TIME 50
 #define MAX_ITEMS_HELD 5
 
 typedef enum {
@@ -78,6 +78,7 @@ item* findItem(int room_id,char* t_loc, char* it_name);
 int insertLocationItem(int room_id, item* itm);
 int sendRoomMessage(int room_id,char* buff);
 int sendRoomWinMessage(int room_id);
+int checkRoomTime(double time);
 
 game_room* findRoomById(game_room* head, int id);
 game_room* findRoomByMap(game_room* head, char* map);

@@ -1,7 +1,5 @@
 
 -----------------------Comandi della room------------------------
-I valori non devono essere messi tra parentesi quadre é un 
-placeholder
 
 look [object|location] --> mostra la descrizione dell'object,
 se usato su di una location ne mostra la descrizione 

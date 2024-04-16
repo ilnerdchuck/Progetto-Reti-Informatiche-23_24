@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "./../pkg/string/string.h"
@@ -16,10 +17,20 @@ static server *s;
 static int esroom_open = 0;
 gamer* gamer_list = NULL;
 game_room* room_list = NULL;
-
-
+time_t server_time = 0;
 
 static void accept_function(int sd) {}
+static void tick_function() {
+    //Updates the server time and determine the time elapsed between 
+    //tikcs 
+
+    //double time_elapsed = 1 + time.tv_sec + (time.tv_usec/1000000);
+    time_t curr_time = time(NULL);
+    double time_elapsed = difftime(curr_time, server_time);
+    server_time = time(NULL); 
+    checkRoomTime(time_elapsed);
+    
+}
 
 //Callback for handling server stdin input, returns != 0 on error
 static void input_function(int sd, const char* inputText) {
@@ -249,7 +260,7 @@ int main(int argc, char* argv[]){
 
     system("clear");
     //Server creation and bind
-    s = new_server(accept_function, input_function, response_function, disconnect_function);
+    s = new_server(accept_function, input_function, response_function, disconnect_function, tick_function);
     
     //bind server on a free port and log it, done to avoid unix socket flushing 
     uint32_t port = 2500;
@@ -262,6 +273,7 @@ int main(int argc, char* argv[]){
     printFile("./menus/serverCommands.txt");
     listen_server(s);
     
+    delete_server(s);
     system("> port.txt");
-
+    return 0;
 }

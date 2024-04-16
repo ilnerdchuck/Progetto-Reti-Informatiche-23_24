@@ -68,9 +68,58 @@ int sendRoomMessage(int room_id, char* buff){
             if(rsp.msgtype != MSG_SUCCESS){
                 return -1;
             }
+            delete_client(cc);
         }
     }
  
+    return 0;
+}
+
+int sendRoomLoss(int room_id){
+    message msg = {0};
+    message rsp = {0};
+    msg.msgtype = MSG_TEXT;
+    msg.cmdtype = CMD_LOSS;
+    strmalloc(&msg.field, "Tempo scaduto!! I giocatori hanno perso!");
+    
+    int err = 0;
+    for(gamer* tmp_gamer = gamer_list; tmp_gamer; tmp_gamer = tmp_gamer->next_gamer){
+        if (tmp_gamer->room_id == room_id) {
+            client* cc = new_client("127.0.0.1", tmp_gamer->port);
+            
+            err = request(cc, msg, &rsp);
+            if (err != 0) {
+                return -1;
+            }  
+            if(rsp.msgtype != MSG_SUCCESS){
+                return -1;
+            }
+            
+            err = dropRoomGamer(tmp_gamer->sd);
+            if(err != 0){
+                return -1;
+            }
+            delete_client(cc);
+        }
+    }
+    return 0;
+}
+
+//Decreases room time and checks if the room game is lost
+int checkRoomTime(double time){
+    //per ogni room devo togliere il tempo
+    game_room* tmp_room = room_list;
+    while(tmp_room) {
+        tmp_room->time_remaining -= time;
+        if (tmp_room->time_remaining <=0) {
+            sendRoomLoss(tmp_room->id);
+            game_room* deleteme = tmp_room;    
+            tmp_room = tmp_room->next_room;
+            delete_room(&room_list, deleteme);
+            continue;
+        }
+        tmp_room = tmp_room->next_room;
+    }
     return 0;
 }
 
@@ -89,7 +138,9 @@ int sendRoomWinMessage(int room_id){
             client* cc = new_client("127.0.0.1", tmp_gamer->port);
             
             err = request(cc, msg, &rsp);
-            
+            if (err != 0) {
+                return -1;
+            }  
             if(rsp.msgtype != MSG_SUCCESS){
                 return -1;
             }
@@ -98,6 +149,7 @@ int sendRoomWinMessage(int room_id){
             if(err != 0){
                 return -1;
             }
+            delete_client(cc);
         }
     }
     return 0;
@@ -119,7 +171,6 @@ int insertGamerInRoom(game_room* head, int sd, char* room){
     t_gamer->room_id = res->id;
     strcpy(t_gamer->curr_location,"room");
     res->current_gamers++;
-  
     return 0;
 }
 
