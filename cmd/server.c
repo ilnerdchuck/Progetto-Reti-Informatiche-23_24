@@ -41,7 +41,7 @@ static void input_function(int sd, const char* inputText) {
             printFile("./menus/startedCommands.txt");
             return;
         }
-        if(strcmp(inputText, "stop")){
+        if(!strcmp(inputText, "stop")){
             printf("Apri prima di chiudere\n");
             return;
         }

@@ -20,6 +20,7 @@ void *testLogin_server_thread_func(void *arg) {
 
 // -----------------------------------------
 void testLogin_accept_function(int sd) {}
+void testTick_accept_function() {}
 void testLogin_input_function(int sd, const char* inputText) {}
 int testLogin_response_function(int sd, const message msg, message *rsp) {
     int err = 0;
@@ -77,7 +78,7 @@ int TestLogin(){
     system("touch ./tmp/cred.txt");
     
     //init server
-    server *s = new_server(testLogin_accept_function, testLogin_input_function, testLogin_response_function, testLogin_disconnect_function);
+    server *s = new_server(testLogin_accept_function, testLogin_input_function, testLogin_response_function, testLogin_disconnect_function, testTick_accept_function);
 
     // start the server
     uint32_t port = 2500;

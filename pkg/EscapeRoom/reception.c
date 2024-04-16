@@ -48,13 +48,6 @@ int startRoom(int sd, char* room){
     }
     res = findRoomByMap(room_list, room);
 
-    //@TODO: Fix client hanging on broadcast 
-    //Broadcast that a client has been connected
-    //char* buff = malloc(1024);
-    //sprintf(buff, "%s %s\n", "pippo", "si é connesso alla room");
-    //printf("%d\n", res->id);
-    //sendRoomMessage(res->id, buff);
- 
     return 0;
 }
 

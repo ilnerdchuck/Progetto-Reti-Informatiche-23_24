@@ -16,6 +16,7 @@ void *server_thread_func(void *arg) {
 // PING PONG behaviour
 // -----------------------------------------
 void accept_function(int sd) {}
+void tick_function() {}
 void input_function(int sd, const char* inputText) {}
 int response_function(int sd, const message msg, message *rsp) {
     char *s = "pang";
@@ -35,7 +36,7 @@ void disconnect_function(int sd) {}
 
 int TestPingPong() {
 
-    server *s = new_server(accept_function, input_function, response_function, disconnect_function);
+    server *s = new_server(accept_function, input_function, response_function, disconnect_function, tick_function);
 
     // start the server
     uint32_t port = 2500;

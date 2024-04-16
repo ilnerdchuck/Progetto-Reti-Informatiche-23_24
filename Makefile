@@ -5,7 +5,7 @@ CFLAGS_DEP = -MD
 CFLAGS_TOT = $(CFLAGS_DEP) $(CFLAGS)
 
 # Define build directory
-BUILD_DIR := build
+BUILD_DIR := build/
 
 
 # If the first argument is "run"... then set everything else as arguments

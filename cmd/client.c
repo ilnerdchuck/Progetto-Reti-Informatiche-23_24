@@ -139,12 +139,12 @@ static void input_function(int sd, const char* inputText) {
         } 
 
         if (!strcmp(curr_command, "end")) {
-            //@TODO: handle end command
             stop_server(s_client);
             goto exit;
         }
-        printf("Comando non disponibile\n");
      }
+    
+    printf("Comando non disponibile\n");
     
 exit:
     return;
