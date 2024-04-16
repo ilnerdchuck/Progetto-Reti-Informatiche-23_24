@@ -16,6 +16,7 @@ static int logged = 0;
 static int client_gaming = 0;
 static uint32_t s_client_port = 7070;
 
+
 static void accept_function(int sd) {}
 static void tick_function(struct timeval time) {}
 
@@ -46,7 +47,6 @@ static void input_function(int sd, const char* inputText) {
             printf("Errore di registrazione");
             goto exit;
         }
-        system("clear");
         printf("Registrazione e login effettuati correttamente\n");
         logged = 1;
         printFile("./menus/clientCommands.txt");
@@ -95,7 +95,7 @@ static void input_function(int sd, const char* inputText) {
         char curr_value1[30] = {0};
         char curr_value2[30] = {0};
         sscanf(inputText, "%s %s %s", curr_command, curr_value1, curr_value2);
- 
+        
         if (!strcmp(curr_command, "look")) {
             err = requestLook(c, curr_value1);
             if (err != 0) {
@@ -136,7 +136,17 @@ static void input_function(int sd, const char* inputText) {
                 goto exit;
             }
             goto exit;
-        } 
+        }
+
+        if (!strcmp(curr_command, "say")) {
+            char* buff = malloc(1024);
+            sscanf(inputText,"%s %1024[^\n]",curr_command, buff);
+            int err = sayToRoom(c, buff);
+            if(err != 0){
+                goto exit;
+            }
+            goto exit;
+        }
 
         if (!strcmp(curr_command, "end")) {
             stop_server(s_client);
@@ -160,7 +170,6 @@ static int response_function(int sd, const message msg, message *rsp) {
         }
         rsp->msgtype = MSG_SUCCESS;
     }
-
     return 0;
 }
 

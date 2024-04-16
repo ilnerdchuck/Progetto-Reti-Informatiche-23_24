@@ -63,11 +63,11 @@ int sendRoomMessage(int room_id, char* buff){
             client* cc = new_client("127.0.0.1", tmp_gamer->port);
             int err = 0;
             
-            err = request(cc, msg, &rsp);
-            
+            err = request(cc, msg, &rsp); 
             if(rsp.msgtype != MSG_SUCCESS){
                 return -1;
             }
+            
             delete_client(cc);
         }
     }
@@ -86,19 +86,17 @@ int sendRoomLoss(int room_id){
     for(gamer* tmp_gamer = gamer_list; tmp_gamer; tmp_gamer = tmp_gamer->next_gamer){
         if (tmp_gamer->room_id == room_id) {
             client* cc = new_client("127.0.0.1", tmp_gamer->port);
-            
             err = request(cc, msg, &rsp);
             if (err != 0) {
-                return -1;
+                delete_client(cc);
+                continue;
             }  
-            if(rsp.msgtype != MSG_SUCCESS){
-                return -1;
-            }
             
             err = dropRoomGamer(tmp_gamer->sd);
             if(err != 0){
                 return -1;
             }
+
             delete_client(cc);
         }
     }
@@ -111,10 +109,14 @@ int checkRoomTime(double time){
     game_room* tmp_room = room_list;
     while(tmp_room) {
         tmp_room->time_remaining -= time;
-        if (tmp_room->time_remaining <=0) {
-            sendRoomLoss(tmp_room->id);
+        if (tmp_room->time_remaining <= 0) {
+            int err = sendRoomLoss(tmp_room->id);
+            if(err != 0){
+                return -1;
+            }
             game_room* deleteme = tmp_room;    
             tmp_room = tmp_room->next_room;
+            
             delete_room(&room_list, deleteme);
             continue;
         }
@@ -278,7 +280,10 @@ int delete_room(game_room** head, game_room* room_to_delete) {
     if (*head == NULL) {
         return -1;
     }
-    
+    if (room_to_delete == NULL) {
+        return -1;
+    }
+
     if (*head == room_to_delete) {
         *head = room_to_delete->next_room;
         free(room_to_delete);

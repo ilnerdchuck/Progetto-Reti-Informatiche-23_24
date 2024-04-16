@@ -5,7 +5,7 @@
 
 
 #define MAX_PLAYERS 5
-#define MAX_ROOM_TIME 50
+#define MAX_ROOM_TIME 200
 #define MAX_ITEMS_HELD 5
 
 typedef enum {

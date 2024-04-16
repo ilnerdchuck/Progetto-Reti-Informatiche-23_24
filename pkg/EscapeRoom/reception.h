@@ -23,6 +23,7 @@ int dropRoomGamer(int sd);
 int polymerization(int sd, char* obj_src, char* obj_dst, char** rsp);
 int dropGamer(int sd);
 
+int sendGamersPorts(int sd, char** rsp);            
 int setGamerLocation(int sd, char* loc, char** rsp);
 gamer* findLoggedGamer(gamer* head, int sd);
 int printGamer(gamer* head, int sd);

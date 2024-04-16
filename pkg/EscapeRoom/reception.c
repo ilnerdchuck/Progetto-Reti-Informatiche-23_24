@@ -7,9 +7,11 @@
 
 #include "./../string/string.h"
 #include "./../repo/repo.h"
+#include "./../network/network.h"
 #include "room.h"
 
 #define REPO_PATH "credentials.txt"
+
 // SERVER BUSINESS DELLA ROOM 
 //------------------------Rooms----------------------
 
@@ -64,6 +66,7 @@ int pointaddHandler(int room_id, char* usr, char* itm){
     sprintf(buff, "%s %s %s\n", usr, "ha risolto l'indovinello:", itm);
     sendRoomMessage(room_id,buff);
     free(buff);
+
     //If the game is won broadcast victory message 
     //and remove gamers from the room, and delete the room
     if(!t_room->tokens){
@@ -331,22 +334,22 @@ int deleteGamer(gamer** head, const int sd) {
     gamer* prev = NULL;
     gamer* next = *head;
 
-    if(next && !next->next_gamer){
-        *head = NULL;
-        free(next);
-        return 0;
-    }
-
-
     while (next != NULL && next->sd != sd) {
         prev = next;
         next = next->next_gamer;
     }
- 
-
-    prev->next_gamer = next->next_gamer;
-    free(next);
-    return 0;
+    //Head removal
+    if (!prev && next->sd == sd) {
+        *head = next->next_gamer;
+        free(next);
+        return 0;
+    }
+    if(next->sd == sd){
+        prev->next_gamer = next->next_gamer;
+        free(next);
+        return 0;
+    }
+    return -1;
 }
 
 //Finds a gamer and changes it's location, returns != 0 on error
@@ -397,6 +400,26 @@ int printGamer(gamer* head, int sd){
     return 0;
 }
 
+int sendGamersPorts(int sd, char** rsp){
+    char* buff = malloc(1024);
+    memset(buff, 0, 1024);
+    gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+    if(t_gamer == NULL){
+        return -1;
+    }
+
+    for(gamer* tmp_gamer = gamer_list; tmp_gamer; tmp_gamer = tmp_gamer->next_gamer){
+        if(t_gamer->room_id == tmp_gamer->room_id && tmp_gamer->sd != sd){
+            char* port = malloc(10);
+            sprintf(port, "%d", tmp_gamer->port);
+            strcat(buff, port);
+            strcat(buff, " ");
+        }
+    }
+    strmalloc(rsp, buff);
+    free(buff);
+    return 0; 
+}
 //Function to print all gamer status
 void printGamers(gamer *head){
     struct winsize w;
@@ -464,7 +487,7 @@ int dropRoomGamer(int sd){
 
     game_room* t_room = findRoomById(room_list, t_gamer->room_id);
     if(t_room == NULL){
-        return 0;
+        return -1;
     }
     t_room->current_gamers--;
     t_gamer->room_id = -1; 
@@ -481,6 +504,7 @@ int dropGamer(int sd){
 
     if (t_gamer->room_id == -1) {
         deleteGamer(&gamer_list, sd);
+        return 0;
     }
     item* target = NULL;
 
@@ -493,7 +517,7 @@ int dropGamer(int sd){
 
     game_room* t_room = findRoomById(room_list, t_gamer->room_id);
     if(t_room == NULL){
-        return 0;
+        return -1;
     }
     t_room->current_gamers--;
     

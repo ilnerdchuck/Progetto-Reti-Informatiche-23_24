@@ -16,7 +16,8 @@
 //Initialize the client struct
 client *new_client(const char *server_ip, const size_t server_port) {
   client *c = malloc(sizeof(client));
-
+  memset(c, 0, sizeof(client));
+  
   if (c == NULL) {
       goto error;
   }

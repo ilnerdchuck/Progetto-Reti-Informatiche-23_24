@@ -164,10 +164,8 @@ static int response_function(int sd, const message msg, message *rsp) {
               goto cmdError;
             }
             setGamerLocation(sd,"room",&rsp->field);
-            printf("Nuova room avviata, mappa: %s\n",msg.field); 
             goto cmdSuccess;
         }
-
         if(msg.cmdtype == CMD_LOOK){
             err = findAsset(sd, msg.field, &rsp->field);
             if(err != 0){
@@ -230,6 +228,14 @@ static int response_function(int sd, const message msg, message *rsp) {
             goto cmdSuccess;
         }
 
+        if(msg.cmdtype == CMD_RGAMERS){
+            int err = sendGamersPorts(sd, &rsp->field);
+            if(err != 0){
+              strmalloc(&rsp->field, "Errore di invio porte");
+              goto cmdError;
+            }
+            goto cmdSuccess;
+        } 
       }
 
 bad_request:

@@ -3,13 +3,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "gamer.h"
 #include "./../network/network.h"
 #include "./../protocol/protocol.h"
 #include "./../util/util.h"
 #include "./../string/string.h"
 
-// Gamer logic
+int gamerChat[5] = {0};
+char* username = NULL;
 
+// Gamer logic
 //-----------------Commands Request-----------------
 //All callbacks send a cmdtype and wait for a MSG_SUCCESS
 //with the same cmdtype or on error it will return a 
@@ -27,6 +30,7 @@ int requestRooms(client* c){
       }
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
           printf("%s\n",rsp.field);
+          printf("%s\n", username);
           return 0;
       }
       return -1;
@@ -48,6 +52,26 @@ int requestRoom(client* c, const char* room){
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
           printFile("./menus/roomCommands.txt");
           printf("%s\n",rsp.field);
+          
+          //richiedi le porte degli utenti
+          message msgP = {0};
+          msgP.msgtype = MSG_COMMAND;
+          msgP.cmdtype = CMD_RGAMERS;
+          
+          message ports = {0};
+
+          err = request(c, msgP, &ports);
+          if(err != 0){
+              return -1;
+          }
+
+          char* tk = strtok(ports.field, " ");
+          int i = 0;
+          while(tk){
+              printf("%d\n", gamerChat[i]);
+              i++;
+              tk = strtok(NULL, " ");
+          }
           return 0;
       }
       if(rsp.msgtype == MSG_ERROR && rsp.cmdtype == msg.cmdtype){
@@ -248,6 +272,46 @@ int requestEnd(client* c){
       return 0;
 }
 
+//TODO: fix when a disconnect happens the ports
+int sayToRoom(client* c, char* buff){
+
+    //richiedi le porte degli utenti
+    message msgP = {0};
+    msgP.msgtype = MSG_COMMAND;
+    msgP.cmdtype = CMD_RGAMERS;
+    
+    message ports = {0};
+
+    int err = request(c, msgP, &ports);
+    if(err != 0){
+        return -1;
+    }
+
+    char* tk = strtok(ports.field, " ");
+    int i = 0;
+    while(tk){
+        sscanf(tk, "%d", &gamerChat[i]);
+        i++;
+        tk = strtok(NULL, " ");
+    }
+
+
+    for(int i=0; i<5; i++){
+        client* cc = new_client("127.0.0.1", gamerChat[i]);
+        message msg = {0};
+        msg.msgtype = MSG_TEXT;
+        msg.cmdtype = CMD_CHAT;
+        msg.field = malloc(strlen(buff) + strlen(username) +1);
+        sprintf(msg.field, "%s: %s", username, buff);
+        
+        message rsp = {0};
+
+        err = request(cc, msg, &rsp);
+        delete_client(cc);
+    }
+    return 0;
+}
+
 //------------------Auth-----------------
 int login(client* c, const int c_s_port){
     int err = 0;
@@ -285,7 +349,10 @@ int login(client* c, const int c_s_port){
       }
     }
     message credentials = {0};
-    
+    username = malloc(strlen(usr)+1);
+    memset(username, 0, strlen(usr)+1);
+    strcpy(username, usr);
+ 
     credentials.field = malloc(strlen(usr) + strlen(pwd1) +2);
     sprintf(credentials.field, "%s %s %d", usr, pwd1, c_s_port);
     credentials.msgtype = MSG_COMMAND;
@@ -298,7 +365,7 @@ int login(client* c, const int c_s_port){
     if(rsp.msgtype == MSG_ERROR && rsp.cmdtype == CMD_LOGIN){
         return -1;
     }else if (rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == CMD_LOGIN) {
-        return 0;
+                return 0;
     }
     
     if(rsp.msgtype == MSG_BAD_REQUEST){
@@ -368,6 +435,7 @@ int signup(client* c, const int c_s_port){
     if(rsp.msgtype == MSG_ERROR && rsp.cmdtype == CMD_SIGNUP){
         return -1;
     }else if (rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == CMD_SIGNUP) {
+        strmalloc(&username, usr);
         return 0;
     }
     if(rsp.msgtype == MSG_BAD_REQUEST && !strcmp(rsp.field, "closed")){

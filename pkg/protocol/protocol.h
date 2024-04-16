@@ -23,5 +23,7 @@ enum cmdType{
   CMD_RROOMS,
   CMD_RROOM,
   CMD_WIN,
+  CMD_CHAT,
+  CMD_RGAMERS,
   CMD_LOSS
 };
