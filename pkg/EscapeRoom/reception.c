@@ -81,6 +81,7 @@ int pointaddHandler(int room_id, char* usr, char* itm){
     }
     return 0;
     }
+
 //Returns gamer inventory, return != 0 on error 
 int retInventory(int sd, char** rsp){
     char* buff = malloc(4096);
@@ -99,6 +100,22 @@ int retInventory(int sd, char** rsp){
     }
     strmalloc(rsp, buff);
     free(buff);
+    return 0;
+}
+
+int getTime(int sd, char **rsp){
+    gamer* t_gamer = findLoggedGamer(gamer_list, sd);
+    if (t_gamer == NULL) {
+        return -1;
+    }
+
+    game_room* t_room = findRoomById(room_list, t_gamer->room_id);
+    if (t_room == NULL) {
+        return -1;
+    }
+    *rsp = malloc(10);
+    sprintf(*rsp,"%d", t_room->time_remaining);
+  
     return 0;
 }
 

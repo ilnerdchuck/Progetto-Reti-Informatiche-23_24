@@ -15,6 +15,7 @@ enum cmdType{
   CMD_SIGNUP,
   CMD_LOOK,
   CMD_TAKE,
+  CMD_TIME,
   CMD_ANSWER,
   CMD_USE,
   CMD_OBJS,

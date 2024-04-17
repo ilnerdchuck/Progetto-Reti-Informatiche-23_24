@@ -62,6 +62,31 @@ int requestRoom(client* c, const char* room){
       return 0;
 }
 
+int requestTime(client* c){
+      message msg = {0};
+      msg.msgtype = MSG_COMMAND;
+      msg.cmdtype = CMD_TIME;
+      
+      message rsp = {0};
+
+      int err = request(c,msg,&rsp);
+      if(err != 0){
+          return -1;
+      }
+        
+      if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
+          printf("Secondi Rimanenti: %s\n",rsp.field);
+          return 0;
+      }
+      if(rsp.msgtype == MSG_ERROR && rsp.cmdtype == msg.cmdtype){
+          printf("%s\n",rsp.field);
+          return -1;
+      }
+
+      return 0;
+}
+
+
 
 int requestLook(client* c, const char* asset){
       message msg = {0};

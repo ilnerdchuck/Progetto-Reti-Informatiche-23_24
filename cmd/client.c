@@ -138,6 +138,14 @@ static void input_function(int sd, const char* inputText) {
             goto exit;
         }
 
+        if (!strcmp(curr_command, "time")) {
+            int err = requestTime(c);
+            if(err != 0){
+                goto exit;
+            }
+            goto exit;
+        }
+
         if (!strcmp(curr_command, "say")) {
             char* buff = malloc(1024);
             sscanf(inputText,"%s %1024[^\n]",curr_command, buff);

@@ -12,6 +12,7 @@ int requestTake(client* c, const char* asset);
 int requestUse(client* c, const char* obj_src, const char* obj_dst);
 int requestObj(client* c);
 int requestDrop(client* c, const char* itm);
+int requestTime(client* c);
 int requestEnd(client* c);
 int usePolymerization(client* c, char* obj_src,char* obj_dst);
 

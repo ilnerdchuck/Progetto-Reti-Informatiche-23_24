@@ -21,6 +21,7 @@ int retInventory(int sd, char** rsp);
 int dropItem(int sd, char* itm);
 int dropRoomGamer(int sd);
 int polymerization(int sd, char* obj_src, char* obj_dst, char** rsp);
+int getTime(int sd, char** rsp);
 int dropGamer(int sd);
 
 int sendGamersPorts(int sd, char** rsp);            

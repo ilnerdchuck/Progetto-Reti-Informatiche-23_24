@@ -1,12 +1,13 @@
 
 -----------------------Comandi della room------------------------
 
-look [object|location] --> mostra la descrizione dell'object,
-se usato su di una location ne mostra la descrizione 
+look [object|location] --> mostra la descrizione dell'object, se usato su di una location ne mostra la descrizione 
 !!!per avere una descrizione della stanza fare look room!!!
-take [object] --> prende l'oggetto object se raccoglibile
-use  [object_src] [object_dst] --> usa l'object_src sull'
-object_dst
+
+take [object] --> prende l'oggetto object
+use  [object_src] [object_dst] --> usa l'object_src sull'object_dst
 objs --> mostra gli oggetti nell'inventario
+time --> mostra i secondi rimanenti al completamento della room
 end --> esci dalla room
+
 
