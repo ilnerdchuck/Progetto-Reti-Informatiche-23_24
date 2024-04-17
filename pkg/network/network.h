@@ -1,6 +1,6 @@
 #pragma once
 
-#include <time.h>
+#include <sys/time.h>
 #include <stddef.h>
 #include "./../protocol/protocol.h"
 #include <stdint.h>

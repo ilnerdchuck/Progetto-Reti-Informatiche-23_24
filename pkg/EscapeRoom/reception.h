@@ -1,7 +1,7 @@
 #pragma once
 
 #include "room.h"
-#include <time.h>
+#include <sys/time.h>
 
 extern gamer* gamer_list; //Variable to store all logged/gaming clients
 

@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <sys/time.h>
 #include "./../pkg/network/network.h"
 #include "./../pkg/gamer/gamer.h"
 #include "./../pkg/util/util.h"
