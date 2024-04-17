@@ -39,12 +39,10 @@ int createRoom(game_room** head_room, char* map, int time) {
     game_room* tmp = *head_room;
     
     while (tmp->next_room != NULL) {
-        if(tmp->id > new_room->id){
-            new_room->id = tmp->id +1;
-        }
+        
         tmp = tmp->next_room;
     }
-
+    new_room->id = tmp->id +1;
     tmp->next_room = new_room;
 
     return 0;

@@ -32,6 +32,7 @@ int startRoom(int sd, char* room){
     if(!strstr(aval_rooms, room)){
         return -3;
     }
+
     game_room* res = findRoomByMap(room_list, room);
     if(!res){
         err = createRoom(&room_list, room, MAX_ROOM_TIME);
@@ -48,7 +49,6 @@ int startRoom(int sd, char* room){
     if(err == -2){
         return err;
     }
-    res = findRoomByMap(room_list, room);
 
     return 0;
 }
