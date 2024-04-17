@@ -5,7 +5,7 @@ CFLAGS_DEP = -MD
 CFLAGS_TOT = $(CFLAGS_DEP) $(CFLAGS)
 
 # Define build directory
-BUILD_DIR := build/
+BUILD_DIR := build
 
 
 # If the first argument is "run"... then set everything else as arguments
@@ -47,7 +47,7 @@ $(BUILD_DIR)/libpkg.a: $(OBJ)
 	ar rcs $@ $^
 
 $(BUILD_DIR)/%: cmd/%.o $(BUILD_DIR)/libpkg.a
-	$(CC) $(CFLAGS_TOT) $^ -o $@
+		$(CC) $(CFLAGS_TOT) $^ -o $@
 
 build: $(CMD_EXE) # $(BUILD_DIR)/test @FIXME TEST NOT WORKING ATM
 

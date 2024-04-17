@@ -52,26 +52,6 @@ int requestRoom(client* c, const char* room){
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
           printFile("./menus/roomCommands.txt");
           printf("%s\n",rsp.field);
-          
-          //richiedi le porte degli utenti
-          message msgP = {0};
-          msgP.msgtype = MSG_COMMAND;
-          msgP.cmdtype = CMD_RGAMERS;
-          
-          message ports = {0};
-
-          err = request(c, msgP, &ports);
-          if(err != 0){
-              return -1;
-          }
-
-          char* tk = strtok(ports.field, " ");
-          int i = 0;
-          while(tk){
-              printf("%d\n", gamerChat[i]);
-              i++;
-              tk = strtok(NULL, " ");
-          }
           return 0;
       }
       if(rsp.msgtype == MSG_ERROR && rsp.cmdtype == msg.cmdtype){

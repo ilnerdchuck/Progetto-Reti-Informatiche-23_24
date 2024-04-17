@@ -1,123 +1,62 @@
-ci sono 3 stadi ti un utente:
-  - Fuori dall'escape room: non loggato.
-  - Nella reception: loggato. Qui puó accedere a una stanza tra le disponibili oppure forzarne l'apertura di una nuova: il server rispettivamente 
-  lo aggiunge a una stanza dello stesso tipo richiesto oppure ne crea una e lo aggiunge.
-      - quando il giocatore richiede di accedere a una room avvia il server e comunica la porta del suo server per la chat
-      - il server lo inserisce all'interno della room e registra la sua porta
-      - il server risponde all'utente con la lista delle porte degli utenti connessi per la chat 
-  - Giocante: sta all'interno di una room.
+\documentclass[12pt]{article}
+\usepackage{blindtext}
+\usepackage[a4paper, total={7.5in, 11in}]{geometry}
+\usepackage{helvet}
+\usepackage{fontspec}
+\setmainfont{Arial}
+\setmonofont{ComicMono.ttf}
 
-il server:
-  - quando un utente fa un'azione viene mostrata in broadcast a tutti i presenti nella chat della room tramite
-i socket
-  - ogni singolo momneto della sua vita decrementa il contatore del tempo rimanente delle room 
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{xparse}
+\NewDocumentCommand{\codeword}{v}{%
+\texttt{\footnotesize \textcolor{blue}{#1}}%
+}
 
-Feature a scelta: chat P2P
-
-TODO: fix only one gamer loose the game due to timeut
-TODO: Implement the chat
-
-//se voglio mettere oggetti dentro la room faccio cosi
-[oggetto]
-
-//se voglio inserire cose dentro una locazioen faccio cosi
-[locazione] nome
-  [oggetto]
-    nome_token_ .. desc ...
+\usepackage{graphicx} % Required for inserting images
+\begin{document}
+\begin{center}
+    \Large
+    \textbf{Progetto Reti informatiche 2024}
     
-  [oggetto]
+    \large
+    Francesco Mignone 569223
+\end{center}
+L’applicazione utilizza I/O multiplexing e socket di tipo TCP bloccanti. È stato scelto di usare il protocollo TCP in quanto non si necessita di un’eccessiva velocità di trasmissione ma si necessita di affidabilità. Una volta inizializzata la connessione essa rimane attiva per tutta la sessione, per questo l'overhead dell'handshake TCP non fa diminuire di troppo le prestazioni.
 
-posso anche fare 
+Lo stato di un client (gamer) viene suddiviso in tre stati: non autenticato, autenticato gestito dal server tramite il modulo \codeword{reception.h}, e in gioco gestito all'interno della room dal modulo \codeword{room.h} e \codeword{reception.h}. Si pensi come a un cliente che entri in una Escape-Room: all'esterno l'utente non ha significato, all'interno viene autenticato e registrato e successivamente entra in un a stanza, si noti come alcune funzioni dei \codeword{reception.h} e \codeword{room.h} si scambino informazioni volutamente in quanto un giocatore all'interno di una stanza può parlare con la reception tipicamente tramite un interfono o la reception può interagire con la stanza conoscendo lo stato tramite sistemi di sorvelgianza.
 
-[locazione]
-  [oggetto]
-  [locazione]
-    [oggetto]
-    
-struttura location
-  - Nome: nome locazione
-  - item*: lista di item
-  
+\vspace{0.1in}
 
+Il modulo network.h permette di definire server modulari, che utilizzino I/O multiplexing, con chiamate a funzioni in vari stati della  \codeword{listen_server()}: \codeword{TickFunction()} eseguita a inizio ciclo dopo la select, \codeword{AcceptFunction()} eseguita dopo che il server ha eseguito l'\codeword{accept()} sul socket in ascolto, \codeword{ResponseFunction()} eseguita a seguito della \codeword{_receive()} e seguita da una \codeword{_send()} in modo tale da poter iterpretare il messaggio ricevuto secondo le esigenze di chi instanzia il server, \codeword{InputFunction()} per gestire il messaggio letto dal socket dello standard input, \codeword{DisconnectFunction()} chiamata in caso di errore su di un socket per gestirne la corretta disconnesione. Sono inoltre fornite funzioni per inizializzare le strutture client e server e le annesse operazioni di rete come \codeword{conect()} e \codeword{listen()}. "vista la necessitá di tenere 2 conessioni aperte da parte del client una per inviare e una per ricevere anche il client"
 
-struttura degli oggetti
-[item]
-  - Name: nome dell'oggetto
-  - type: 0(raccoglibile?) 1(solve da stdin) 2(solve con use oggetto1 oggetto 2) 3  
-  - Solve: nome dell'oggetto o risposta che risolve l'enigma associato all'oggetto name
-  - Solve desc: descrizione di cosa viene fuori quando il puzzle viene risolto
-  - Item: magari aveva un altro oggetto al suo interno o diventa un oggetto utilizzabile
-  - Desc locked: descrizione dell'oggetto eventualmente bloccato
-  - Desc unlocked: descrizione dell'oggetto eventualemnte sbloccato
+\vspace{0.1in}
 
-se su di un oggetto é 
+\textbf{Formato Messaggi}: I messaggi inviati e ricevuti sono tutti dello stesso formato \codeword{message}, varia solo la tipologia del messaggio secondo i tipi \codeword{msgType} e \codeword{cmdType} presenti in \codeword{protocol.h} e un campo di testo per i parametri, i messaggi non hanno una lunghezza predefinita e essendo delle strutture vengono serializzate e deserializzate rispettivamente prima dell'invio e della ricezione, per questo sono state implementate le funzioni \codeword{_send()} e \codeword{_receive()} per inviare e ricevere la corretta lunghezza e formato del messaggio. Viene utilizzato il Text protocol visto che i messaggi sono prevalentemente di testo a discapito del consumo di banda maggiore.
 
-es oggetto puro
-[item]
-  - Name: chiave universale
-  - type: 0
-  - Solve: NULL
-  - Solve desc: NULL
-  - Item*: NULL
-  - Desc locked: chiave arrugginita, sembra possa aprire tutte le serrature
-  - Desc unlocked: NULL;
+\vspace{0.1in}
 
-[item]
-  - Name: Marchingegno Bloccato
-  - type: 2
-  - Solve: "chiave universale"
-  - Solve desc: "il marchingeno apre un cassetto e trovi un punto stella!"
-  - Item: Libro
-  - Desc locked: "il marchingegno non si muove. sembra ci sia una piccola **serratura**"
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{grafo(3).png}
+\end{figure}
 
-struttura enigmi
-[riddle]
+\textbf{Il gioco}: Il giocatore deve prima effettuare il login o una registrazione. Una volta effettuato l'accesso può avviare una stanza tra quelle disponibili, che possono essere mostrate con il comando \codeword{show rooms}. All'avvio il giocatore viene posizionato all'ingresso della stanza e può interagire con le locazioni o oggetti come da specifiche, si puó interagire solo con gli oggetti presenti in una locazione come mostrato dalla descrizione e non con oggetti presenti al di fuori di essa, bisogna prima spostare la locazione sulla locazione di interesse, se si vuole tornare a vedere la stanza principale si puó digitare \codeword{look room}. Quando viene risolto un indovinello viene mostrato nella "chat" di tutti i giocatori connessi alla stanza, la sincronizzazione tra chi risolve l'enigma é assente, chi risolve per primo l'indovinello ottiene l'oggetto ad esso connesso, mentre i token sono assegnati alla stanza e il gioco viene considerato concluso quando tutti i token sono stato o raccolti o sbloccati, il gioco é considerato concluso e quindi perso quando i giocatori non riscono a ottenere tutti i token entro il tempo limite. Sono stati implementati solo 2 tipi di puzzle: nel momento in cui si interagisce con un oggetto potrebbe essere sichiesto un indovinello per essere preso, oppure un uggetto richiede un'altro oggetto per essere sbloccato. É stato implementato il comando \codeword{drop} per rilasciare un oggetto dal proprio inventario. Come funzionalitá a piacere é stato implementato il comando \codeword{say} per mandare un messaggio a tutti gli utenti della room in modalitá P2P con index centrale. Il server può accettare un numero generico di client (il limite é solo la memoria e le capienze delle stanze).
 
+\vspace{0.1in}
 
+\textbf{Server}: Il server viene messo subito in ascolto delle richieste dei client. Una volta autenticati viene istanziata una struttura \codeword{gamer} con i relativi dati ad un giocatore e vengono lasciati ad aspettare nella reception finché non viene ricevuto il comando di richiesta per una stanza. Ricevuta la richiesta il server controlla se é disponibile una stanza con la stessa mappa e se non é presente il server si occupa di caricare e instanziare una struttura \codeword{game_room}, la mappa creata da un individuo é caricata dalla cartella \codeword{./room_template/} dove al nome della mappa corrisponde una relativa cartella, all'interno si possono trovare dei file¹ che identificano il nome della locazione e all'interno troviamo: come prima riga la descrizione della locazione con gli oggetti con cui si puó interagire indicati come da specifiche, si noti come non é stato implementata la possibilitá di avere una locazione dentro una locazione (puó comunque essere aggiunta per come é strutturato il codice). Il server si occupa di gestire la disconnessione improvvisa o per comando \codeword{end} del client rimuovendo la struttura \codeword{gamer} e chiudendo il socket, l'inventario del giocatore viene rilocato coerentemente a dove erano stati presi gli oggetti.
 
-[Room Desc]
-Ti trovi in una stanza illuminata solo da una piccola candela, riesci a vedere uno **specchio** 
+\textbf{Client}: Il client si sviluppa tutto tramite la gestione dell'input da tastiera tramite la \codeword{InputFunction()} la quale si occupa di controllare il comando inserito e chiamare la funzione che richiede il comando con annessi parametri se presenti al server e gestisce la risposta e se necessario stampata a video. Il client dispone anche di un server in modo tale da poter ricevere e gestire messaggi dal server o eventualmente da altri giocatori, in caso del server vengono gestiti i comandi di vittoria e sconfitta della partita. Il client richiede uno scambio di messaggi con la funzione \codeword{request()} la quale ha il semplice compito di eventualmente creare la connessione tra un client e un server e successivamente inviare il messaggio tramite \codeword{_send()} e attendere la risposta tramite la \codeword{_receive()}.
 
+\par\noindent\rule{\textwidth}{0.1pt}
+{
+\footnotesize
+In tutto il progetto qundo si scrivono stringhe sia terminale che nei file evitare l'utilizzo del carattere \codeword{'_'} viene utilizzato come separatore e potrebbe rompere qualcosa.
 
-la room é una descrizione che include i nomi degli oggetti in modo tale che il giocatore possa interagirci
+1. La struttura di una mappa é cosi composta: all'interno della cartella si deve trovaer un file chiamato \codeword{room} il quale si occupa di impostare la stanza base che viene trattata come una location, il formato del file é descritto in seguito insieme alle location. I successivi file sono le location che compongono la stanza, il formato del file deve essere il seguente: la prima riga deve contenere la descrizione della location, in seguito in ogni riga si puó aggiungere un oggetto separando ogni campo che corrisponde all'oggetto da un \codeword{'_'}, l'ordine dei campi é lo stesso della struttura presente in \codeword{room.h} nel quale é anche presente tramite commenti una descrizione dei vari campi(evitare spazi nel nome dell'oggetto e ovviamente evitare di specificare una locazione di memoria del prossimo item, garantisco che non funziona a meno che non si voglia gestire la lista a mano), fare comunque riferimento alle mappe già presenti per avere un idea. Inoltre i file delle location devono essere senza estensione e le locazioni non devono essere omonime.
 
-/////////Soluzione Iacopesca//////// 
-metto ogni mappa in una cartella e ogni file é una location con i suoi item dentro
-all'inizio viene caricata la location room che é quella di default
-ha una descrizione in testa e poi tutti gli oggetti corrispondenti sotto
-nello stesso formato della soluzione mignesca ma tutto su di una riga
-
-nella descrizione della lovation/room si indica con [location] la posizione di una locazione
-e [item] la posizione degli oggetti nell'ordine in cui vogliamo che siano messi;
-
-
-
-
-es enigma con input da tastiera 
- - Name: specchio
- - bool: "true"
- - solve: "Nigro"
- - desc: Sullo specchio stregato trovi scritto "orgiN" e una macchia di sangue ancora fresco. puoi intingerci
-    il dito e scrivere: 
- - 
-
-DOOM Related riddles
-I am the end of life but also its start,
-I am in your dreams, and can break your heart.
-I am inevitable, yet feared by all,
-In every story, I play a part.
-What am I?
-Answer: Death
-
-
-zork based
-I cannot be seen, cannot be felt,
-Cannot be heard, cannot be smelt.
-I lie behind stars and under hills,
-And empty holes I fill.
-I come first and follow after,
-End life, kill laughter.
-What am I?
-Answer: Darkness
-
+2. La funzione per annullare la registrazione di un utente é cancellarlo dal file, semplice e funzionale.
+}
+\end{document}
 
