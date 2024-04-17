@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bits/types/struct_timeval.h>
 #include <time.h>
 #include <stddef.h>
 #include "./../protocol/protocol.h"
