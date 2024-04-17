@@ -62,6 +62,9 @@ int sendRoomMessage(int room_id, char* buff){
             int err = 0;
             
             err = request(cc, msg, &rsp); 
+            if (err != 0) {
+                return -1;
+            }
             if(rsp.msgtype != MSG_SUCCESS){
                 return -1;
             }
