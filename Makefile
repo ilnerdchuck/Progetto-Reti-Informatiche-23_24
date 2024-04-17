@@ -36,7 +36,7 @@ test: $(BUILD_DIR)/test
 
 # Rule to generate test.c and compile it into an object file
 $(BUILD_DIR)/test: $(TEST_SRC) $(BUILD_DIR)/libpkg.a
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -pthread -o $@ $^
 
 # Rule to run test.sh and generate test.c
 # @FIXME this will trigger a re-compilation each time
