@@ -189,7 +189,7 @@ int takeItem(int sd, char* t_item, char** rsp){
     }
     
     if(res->itemType == 1){
-        strmalloc(rsp, res->desc_locked);  
+        strmalloc(rsp, res->desc_puzzle);  
         return 1;
     
     }
@@ -424,7 +424,7 @@ int findAsset(int sd, char* asset, char** rsp){
     }
 
     if(res->itemType != 0){
-        strmalloc(rsp, "");
+        strmalloc(rsp, res->desc_locked);
         return 0;
     }
     strmalloc(rsp, res->desc_unlocked);

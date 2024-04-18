@@ -24,8 +24,9 @@ struct item{
     char* unloked_item; //If != NULL it can be used to link an item that will be unclocked by interacting
     char* answer; //Answer to the riddle or object that needs to be used to solve the puzzle
     char* success_message; //Message shown on riddle/puzzle solved
-    char* desc_locked; // locked description
+    char* desc_puzzle; // puzzle description
     char* desc_unlocked; // generic description
+    char* desc_locked; // description of a locked item
     char* location;
     struct item* next_item;
 };

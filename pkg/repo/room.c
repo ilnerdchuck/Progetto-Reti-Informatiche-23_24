@@ -94,8 +94,9 @@ int insertIteminLocation(location* locations,
                const char* item_unlocked,
                const char* item_answer,
                const char* item_succ_mess,
-               const char* item_descl,
-               const char* item_descu){
+               const char* item_puzzle,
+               const char* item_descu,
+               const char* item_descl){
     if(locations == NULL){
         return -1;
     }  
@@ -110,8 +111,9 @@ int insertIteminLocation(location* locations,
     strmalloc(&new_item->unloked_item, item_unlocked);
     strmalloc(&new_item->answer, item_answer);
     strmalloc(&new_item->success_message, item_succ_mess);
-    strmalloc(&new_item->desc_locked, item_descl);
+    strmalloc(&new_item->desc_puzzle, item_puzzle);
     strmalloc(&new_item->desc_unlocked, item_descu);
+    strmalloc(&new_item->desc_locked, item_descl);
     new_item->location = locations->name; 
     new_item->next_item = NULL;
 
@@ -164,18 +166,20 @@ int getLocations(const char* map, location** locations, int* tokens){
             char item_unlocked[100] = {0};
             char item_answer[100] = {0};
             char item_succ_mess[100] = {0};
-            char item_descl[300] = {0};
+            char item_puzzle[300] = {0};
             char item_descu[300] = {0};
+            char item_descl[300] = {0};
             
-            sscanf(tmp_line,"%[^_]_%d_%d_%[^_]_%[^_]_%[^_]_%[^_]_%[^_]",
+            sscanf(tmp_line,"%[^_]_%d_%d_%[^_]_%[^_]_%[^_]_%[^_]_%[^_]_%[^_]",
                    item_name,
                    (int*)&item_type,
                    &item_token,
                    item_unlocked,
                    item_answer,
                    item_succ_mess,
-                   item_descl,
-                   item_descu
+                   item_puzzle,
+                   item_descu,
+                   item_descl
                   );
             if(item_token){
                 *tokens = *tokens + 1;
@@ -187,8 +191,9 @@ int getLocations(const char* map, location** locations, int* tokens){
                                  item_unlocked, 
                                  item_answer, 
                                  item_succ_mess, 
-                                 item_descl, 
-                                 item_descu);
+                                 item_puzzle, 
+                                 item_descu,
+                                 item_descl);
  
         }
 
