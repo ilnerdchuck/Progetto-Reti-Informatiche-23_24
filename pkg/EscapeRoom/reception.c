@@ -55,22 +55,26 @@ int startRoom(int sd, char* room){
 
 //Adds a point and check game status and broadcast 
 //to the room, returns != 0 on error
-int pointaddHandler(int room_id, char* usr, char* itm){
-    //remove a token from the room
+int pointaddHandler(int room_id, int id, char* itm){
+    gamer* t_gamer = findLoggedGamer(gamer_list, id);
+    if(t_gamer == NULL){
+        return -1;
+    }
     game_room* t_room = findRoomById(room_list, room_id);
     if(t_room == NULL){
         return -1;
     }
     t_room->tokens--;
     char* buff = malloc(1024);
-    sprintf(buff, "%s %s %s\n", usr, "ha risolto l'indovinello:", itm);
-    sendRoomMessage(room_id,buff);
+    memset(buff, 0, 1024);
+    sprintf(buff, "%s %s %s\n", t_gamer->username, "ha risolto l'indovinello:", itm);
+    sendSolveMessage(room_id, id, buff);
     free(buff);
 
     //If the game is won broadcast victory message 
     //and remove gamers from the room, and delete the room
     if(!t_room->tokens){
-        int err = sendRoomWinMessage(room_id);
+        int err = sendRoomWinMessage(room_id, t_gamer->sd);
         if(err != 0){
             return -1;
         }
@@ -78,6 +82,7 @@ int pointaddHandler(int room_id, char* usr, char* itm){
         if(err != 0){
             return -1;
         }
+        return 1;
     }
     return 0;
     }
@@ -167,7 +172,7 @@ int dropItem(int sd, char* t_item){
 
 //Takes an item from the current gamer location and moves 
 //in the gamer inventory, checks if it's a pickable item
-//returns 1 if it's a riddle locked item or 2 on a puzzle 
+//returns 1 if it's a riddle locked item or 2 a puzzle 
 //!=0 if there is an error
 int takeItem(int sd, char* t_item, char** rsp){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
@@ -197,7 +202,11 @@ int takeItem(int sd, char* t_item, char** rsp){
         return -1;
     }
     if (res->token) {
-      pointaddHandler(t_gamer->room_id, t_gamer->username, res->name);
+        int err = pointaddHandler(t_gamer->room_id, t_gamer->sd, res->name);
+        if(err == 1){
+            strmalloc(rsp,"I giocatori hanno vinto!");
+            return 3;
+        }
     } 
     insertGamerItem(&t_gamer->inventory,res);
     t_gamer->items_held++;
@@ -206,7 +215,7 @@ int takeItem(int sd, char* t_item, char** rsp){
 }
 
 //Handles riddle check and moves item in the gamer inventory, 
-//returns != 0 on error
+//returns != 0 on error, 1 on victory
 int checkRiddle(int sd, char* buff, char **rsp){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     if(t_gamer == NULL){
@@ -230,8 +239,15 @@ int checkRiddle(int sd, char* buff, char **rsp){
                 return -1;
             }
             if (res->token) {
-                pointaddHandler(t_gamer->room_id, t_gamer->username, res->name);
+                int err = pointaddHandler(t_gamer->room_id, t_gamer->sd, res->name);
+                if(err == 1){
+                    strmalloc(rsp,"I giocatori hanno vinto!");
+                    return 1;
+                }
+                res->token = 0;
+                
             }
+            res->itemType = 0;
             insertGamerItem(&t_gamer->inventory,res);
             t_gamer->items_held++;
 
@@ -243,8 +259,8 @@ int checkRiddle(int sd, char* buff, char **rsp){
     return -1; 
 }
 
-//Handles the use of an obj on another, on success adds the item
-//in the gamer inventory, returns != 0 on error
+//AKA:Use command, handles the use of an obj on another, on success adds the item
+//in the gamer inventory, returns != 0 on error, 1 on victory
 int polymerization(int sd, char* obj_src, char* obj_dst, char** rsp){
     gamer* t_gamer = findLoggedGamer(gamer_list, sd);
     if (t_gamer == NULL) {
@@ -275,9 +291,14 @@ int polymerization(int sd, char* obj_src, char* obj_dst, char** rsp){
             return -1;
         }
         if (dst->token) {
-            pointaddHandler(t_gamer->room_id, t_gamer->username, res->name);
+            int err =pointaddHandler(t_gamer->room_id, t_gamer->sd, res->name);
+            if(err == 1){
+                strmalloc(rsp,"I giocatori hanno vinto!");
+                return 1;
+            }
             dst->token = 0;
         }
+        res->itemType = 0;
         insertGamerItem(&t_gamer->inventory,res);
         t_gamer->items_held++;
 
@@ -401,7 +422,12 @@ int findAsset(int sd, char* asset, char** rsp){
         }
         return 0;
     }
-    strmalloc(rsp, res->desc_locked);
+
+    if(res->itemType != 0){
+        strmalloc(rsp, "");
+        return 0;
+    }
+    strmalloc(rsp, res->desc_unlocked);
     return 0;
 } 
 

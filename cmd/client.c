@@ -7,6 +7,8 @@
 #include "./../pkg/network/network.h"
 #include "./../pkg/gamer/gamer.h"
 #include "./../pkg/util/util.h"
+#include "./../pkg/string/string.h"
+
 
 static server *s_client = NULL;
 
@@ -105,16 +107,23 @@ static void input_function(int sd, const char* inputText) {
 
         if (!strcmp(curr_command, "take")) {
             err = requestTake(c, curr_value1);
+            if (err == 1) {
+                client_gaming = 0;
+                goto exit;
+            }
             if (err != 0) {
                 goto exit;
             }
-            printf("Oggetto aggiunto all'inventario\n");
             goto exit;
         }      
 
 
         if (!strcmp(curr_command, "use")) {
             err = usePolymerization(c, curr_value1, curr_value2);
+            if (err == 1) {
+                client_gaming = 0;
+                goto exit;
+            }
             if (err != 0) {
                 goto exit;
             }
@@ -147,6 +156,7 @@ static void input_function(int sd, const char* inputText) {
 
         if (!strcmp(curr_command, "say")) {
             char* buff = malloc(1024);
+            memset(buff, 0, 1024);
             sscanf(inputText,"%s %1024[^\n]",curr_command, buff);
             int err = sayToRoom(c, buff);
             if(err != 0){
@@ -171,11 +181,16 @@ exit:
 //Callback for handling server messages, returns != 0 on error
 static int response_function(int sd, const message msg, message *rsp) {
     if(msg.msgtype == MSG_TEXT){
-        printf("%s\n", msg.field);
         if(msg.cmdtype == CMD_WIN || msg.cmdtype == CMD_LOSS){
+            system("clear");
+            printFile("./menus/clientCommands.txt");
             client_gaming = 0;
         }
+        printf("%s\n", msg.field);
+      
         rsp->msgtype = MSG_SUCCESS;
+        rsp->cmdtype = msg.cmdtype;
+        strmalloc(&rsp->field, "ricevuto");
     }
     return 0;
 }

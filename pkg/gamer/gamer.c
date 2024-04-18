@@ -29,8 +29,8 @@ int requestRooms(client* c){
           return -1;
       }
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
+          printFile("./menus/clientCommands.txt");
           printf("%s\n",rsp.field);
-          printf("%s\n", username);
           return 0;
       }
       return -1;
@@ -74,7 +74,8 @@ int requestTime(client* c){
           return -1;
       }
         
-      if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
+      if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){ 
+          printFile("./menus/roomCommands.txt");
           printf("Secondi Rimanenti: %s\n",rsp.field);
           return 0;
       }
@@ -151,19 +152,27 @@ int requestTake(client* c, const char* item){
       if(err != 0){
           return -1;
       }
-
+      if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == CMD_WIN){
+          system("clear");
+          printFile("./menus/clientCommands.txt");
+          printf("%s\n",rsp.field);
+          return 1;
+      }
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
+          printFile("./menus/roomCommands.txt");
+          printf("%s aggiunto all'inventario\n",item);
           return 0;
       }
       //On take if the item needs a riddle it will answer with a 
-      //CMD_ANSWER
+      //CMD_ANSWER or description if you need a CMD_USE
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == CMD_ANSWER){
           printf("%s\n",rsp.field);
           char* buff = NULL;
           read_stdin_line(&buff);
           
           message ans = {0};
-          char* answer = malloc(strlen(buff)+strlen(msg.field)+2); 
+          char* answer = malloc(strlen(buff)+strlen(msg.field)+2);
+          memset(answer, 0, strlen(buff)+strlen(msg.field)+2);
           ans.msgtype = MSG_COMMAND;
           ans.cmdtype = CMD_ANSWER;
           sprintf(answer, "%s %s", msg.field, buff);
@@ -175,7 +184,14 @@ int requestTake(client* c, const char* item){
           if (err != 0) {
               return -1;
           }
+          if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == CMD_WIN){
+              system("clear");
+              printFile("./menus/clientCommands.txt");
+              printf("%s\n",rsp.field);
+              return 1;
+          }
           if(res.msgtype == MSG_SUCCESS && res.cmdtype == ans.cmdtype){
+              printFile("./menus/roomCommands.txt");
               printf("%s\n",res.field);
               return 0;
           }
@@ -184,11 +200,13 @@ int requestTake(client* c, const char* item){
               printf("%s\n",rsp.field);
               return -1;
           }
-
-              
           return 0;
       } 
-
+      if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == CMD_USE){
+          printFile("./menus/roomCommands.txt");
+          printf("Non puoi aggiungere l'oggetto all'inventario\n");
+          return 0;
+      }
 
       if(rsp.msgtype == MSG_ERROR && rsp.cmdtype == msg.cmdtype){
           printf("%s\n",rsp.field);
@@ -214,7 +232,13 @@ int usePolymerization(client* c, char* obj_src,char* obj_dst){
       if(err != 0){
           return -1;
       }
-        
+      
+      if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == CMD_WIN){
+          system("clear");
+          printFile("./menus/clientCommands.txt"); 
+          printf("%s\n",rsp.field);
+          return 1;
+      } 
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
           printFile("./menus/roomCommands.txt");
           printf("%s\n",rsp.field);
@@ -242,6 +266,8 @@ int requestDrop(client* c, const char* item){
       }
         
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
+          printFile("./menus/roomCommands.txt");
+          printf("Item: %s é stato rimosso dall'inventario\n", item);
           return 0;
       }
 

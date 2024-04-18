@@ -76,8 +76,8 @@ item* removeLocationItem(int room_id, char* t_loc, char* it_name);
 item* findInvItem(int sd, char* it_name);
 item* findItem(int room_id,char* t_loc, char* it_name);
 int insertLocationItem(int room_id, item* itm);
-int sendRoomMessage(int room_id,char* buff);
-int sendRoomWinMessage(int room_id);
+int sendSolveMessage(int room_id,int id, char* buff);
+int sendRoomWinMessage(int room_id, int id);
 int checkRoomTime(double time);
 
 game_room* findRoomById(game_room* head, int id);

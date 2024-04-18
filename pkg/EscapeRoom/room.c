@@ -50,14 +50,14 @@ int createRoom(game_room** head_room, char* map, int time) {
 
 //Sends a bradcast message to all gamers in the room, 
 //returns != 0 on error
-int sendRoomMessage(int room_id, char* buff){
+int sendSolveMessage(int room_id, int id, char* buff){
     message msg = {0};
     message rsp = {0};
     msg.msgtype = MSG_TEXT;
     strmalloc(&msg.field, buff);
-    
+ 
     for(gamer* tmp_gamer = gamer_list; tmp_gamer; tmp_gamer = tmp_gamer->next_gamer){
-        if (tmp_gamer->room_id == room_id) {
+        if (tmp_gamer->room_id == room_id && tmp_gamer->sd != id) {
             client* cc = new_client("127.0.0.1", tmp_gamer->port);
             int err = 0;
             
@@ -128,7 +128,7 @@ int checkRoomTime(double time){
 
 //Sends victory message to all gamers in the room, 
 //returns != 0 on error
-int sendRoomWinMessage(int room_id){
+int sendRoomWinMessage(int room_id,int id){
     message msg = {0};
     message rsp = {0};
     msg.msgtype = MSG_TEXT;
@@ -137,7 +137,7 @@ int sendRoomWinMessage(int room_id){
     
     int err = 0;
     for(gamer* tmp_gamer = gamer_list; tmp_gamer; tmp_gamer = tmp_gamer->next_gamer){
-        if (tmp_gamer->room_id == room_id) {
+        if (tmp_gamer->room_id == room_id && tmp_gamer->sd != id) {
             client* cc = new_client("127.0.0.1", tmp_gamer->port);
             
             err = request(cc, msg, &rsp);

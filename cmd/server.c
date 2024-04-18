@@ -169,7 +169,7 @@ static int response_function(int sd, const message msg, message *rsp) {
         if(msg.cmdtype == CMD_LOOK){
             err = findAsset(sd, msg.field, &rsp->field);
             if(err != 0){
-              strmalloc(&rsp->field, "Errore di ");
+              strmalloc(&rsp->field, "Errore di vista");
               goto cmdError;
             }
             goto cmdSuccess; 
@@ -182,7 +182,14 @@ static int response_function(int sd, const message msg, message *rsp) {
                 return 0;
             }
             if (err == 2) {
-                goto cmdSuccess;
+                rsp->msgtype = MSG_SUCCESS;
+                rsp->cmdtype = CMD_USE;
+                return 0;
+            }
+            if (err == 3) {
+                rsp->msgtype = MSG_SUCCESS;
+                rsp->cmdtype = CMD_WIN;
+                return 0;
             }
             if(err != 0){
               strmalloc(&rsp->field, "Errore nel prendere l'oggetto");
@@ -195,6 +202,11 @@ static int response_function(int sd, const message msg, message *rsp) {
             char* obj_dst = malloc(100);
             sscanf(msg.field, "%s %s", obj_src, obj_dst);
             int err = polymerization(sd, obj_src, obj_dst, &rsp->field);
+            if (err == 1) {
+                rsp->msgtype = MSG_SUCCESS;
+                rsp->cmdtype = CMD_WIN;
+                return 0;
+            }
             if(err != 0){
               strmalloc(&rsp->field, "Errore nel comando use");
               goto cmdError;
@@ -204,6 +216,11 @@ static int response_function(int sd, const message msg, message *rsp) {
   
         if(msg.cmdtype == CMD_ANSWER){
             int err = checkRiddle(sd, msg.field, &rsp->field);
+            if (err == 1) {
+                rsp->msgtype = MSG_SUCCESS;
+                rsp->cmdtype = CMD_WIN;
+                return 0;
+            }
             if(err != 0){
               strmalloc(&rsp->field, "Errore nel comando Answer");
               goto cmdError;
