@@ -223,7 +223,10 @@ int checkRiddle(int sd, char* buff, char **rsp){
     }
     char* itm = malloc(100);
     char* answer = malloc(300);
-    sscanf(buff,"%s %s", itm, answer);
+    memset(itm, 0, 100);  
+    memset(answer, 0, 300);  
+  
+    sscanf(buff,"%s %[^\n]", itm, answer);
 
     item* res = findItem(t_gamer->room_id,t_gamer->curr_location, itm);   
     if(res == NULL){
@@ -254,7 +257,7 @@ int checkRiddle(int sd, char* buff, char **rsp){
             return 0;
         }
         strmalloc(rsp, "Risposta errata");
-        return -1;
+        return 0;
     }
     return -1; 
 }

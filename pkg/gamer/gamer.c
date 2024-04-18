@@ -167,6 +167,7 @@ int requestTake(client* c, const char* item){
       //CMD_ANSWER or description if you need a CMD_USE
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == CMD_ANSWER){
           printf("%s\n",rsp.field);
+          
           char* buff = NULL;
           read_stdin_line(&buff);
           
@@ -177,7 +178,8 @@ int requestTake(client* c, const char* item){
           ans.cmdtype = CMD_ANSWER;
           sprintf(answer, "%s %s", msg.field, buff);
           strmalloc(&ans.field, answer);
-            
+          
+      
           message res = {0};
 
           err = request(c, ans, &res);
@@ -267,7 +269,7 @@ int requestDrop(client* c, const char* item){
         
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
           printFile("./menus/roomCommands.txt");
-          printf("Item: %s é stato rimosso dall'inventario\n", item);
+          printf("Item: %s é stato rimosso dall'inventario", item);
           return 0;
       }
 
