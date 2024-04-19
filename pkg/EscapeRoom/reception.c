@@ -209,6 +209,7 @@ int takeItem(int sd, char* t_item, char** rsp){
         }
     } 
     insertGamerItem(&t_gamer->inventory,res);
+    strmalloc(rsp, res->success_message);
     t_gamer->items_held++;
     return 0;
  

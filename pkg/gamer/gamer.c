@@ -160,6 +160,7 @@ int requestTake(client* c, const char* item){
       }
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
           printFile("./menus/roomCommands.txt");
+          printf("%s\n",rsp.field);
           printf("%s aggiunto all'inventario\n",item);
           return 0;
       }
@@ -269,7 +270,7 @@ int requestDrop(client* c, const char* item){
         
       if(rsp.msgtype == MSG_SUCCESS && rsp.cmdtype == msg.cmdtype){
           printFile("./menus/roomCommands.txt");
-          printf("Item: %s é stato rimosso dall'inventario", item);
+          printf("Item: %s é stato rimosso dall'inventario\n", item);
           return 0;
       }
 
