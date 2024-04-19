@@ -124,11 +124,11 @@ int TestLogin(){
     ASSERT(res == 0);
     ASSERT(rsp.msgtype != MSG_ERROR);
 
-    system("echo palle kek > ./tmp/cred.txt");
+    system("echo uu kek > ./tmp/cred.txt");
 
     msg_test.msgtype = MSG_COMMAND;
     msg_test.cmdtype = CMD_LOGIN;
-    msg_test.field = "pale kek";
+    msg_test.field = "uwu kek";
     
     rsp = (message){0};
 

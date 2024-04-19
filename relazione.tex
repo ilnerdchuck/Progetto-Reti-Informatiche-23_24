@@ -1,11 +1,9 @@
-TODO: stampa i token rimaenenti e racolti e il tempo rimanente
-TODO: i nteoria il tipo poi deve fare una take
-
 \documentclass[12pt]{article}
 \usepackage{blindtext}
 \usepackage[a4paper, total={7.5in, 11in}]{geometry}
 \usepackage{helvet}
 \usepackage{fontspec}
+\usepackage{xcolor}
 \setmainfont{Arial}
 \setmonofont{ComicMono.ttf}
 
@@ -16,7 +14,7 @@ TODO: i nteoria il tipo poi deve fare una take
 \texttt{\footnotesize \textcolor{blue}{#1}}%
 }
 
-\usepackage{graphicx} % Required for inserting images
+\usepackage{graphicx}
 \begin{document}
 \begin{center}
     \Large
@@ -60,6 +58,10 @@ In tutto il progetto qundo si scrivono stringhe sia terminale che nei file evita
 1. La struttura di una mappa é cosi composta: all'interno della cartella si deve trovaer un file chiamato \codeword{room} il quale si occupa di impostare la stanza base che viene trattata come una location, il formato del file é descritto in seguito insieme alle location. I successivi file sono le location che compongono la stanza, il formato del file deve essere il seguente: la prima riga deve contenere la descrizione della location, in seguito in ogni riga si puó aggiungere un oggetto separando ogni campo che corrisponde all'oggetto da un \codeword{'_'}, l'ordine dei campi é lo stesso della struttura presente in \codeword{room.h} nel quale é anche presente tramite commenti una descrizione dei vari campi(evitare spazi nel nome dell'oggetto e ovviamente evitare di specificare una locazione di memoria del prossimo item, garantisco che non funziona a meno che non si voglia gestire la lista a mano), fare comunque riferimento alle mappe già presenti per avere un idea. Inoltre i file delle location devono essere senza estensione e le locazioni non devono essere omonime.
 
 2. La funzione per annullare la registrazione di un utente é cancellarlo dal file, semplice e funzionale. Consultare il file \codeword{credentials.txt} per gli utenti già registrati. 
+
+3. I server genera e scrive la porta su di un file che viene letto dai client per connettersi, lo scambio della porta cosi fatto mitiga l'attesa dovuta ai riavvii consecutivi dovuta al flush di UNIX delle porte.
+
+4. Per avviare un \codeword{server} e due \codeword{client} eseguire \codeword{./run.sh} (\codeword{chmod +x ./run.sh} per i permessi) e seguire le istruzioni a video. Lo script avvierá il server in \codeword{blu} e un client in {\color{green}verde}  e uno in {\color{red}rosso}. Se si vogliono aggiungere altri client digitare \codeword{make run client} o \codeword{./build/client}.
 }
 \end{document}
 

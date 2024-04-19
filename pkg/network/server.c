@@ -159,5 +159,4 @@ void stop_server(server* s){
 }
 
 void delete_server(server* s) {
-    //@TODO: Add delete server
 }

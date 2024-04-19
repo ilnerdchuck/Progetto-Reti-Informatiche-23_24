@@ -306,7 +306,6 @@ int requestEnd(client* c){
       return 0;
 }
 
-//TODO: fix when a disconnect happens the ports
 int sayToRoom(client* c, char* buff){
 
     //richiedi le porte degli utenti
